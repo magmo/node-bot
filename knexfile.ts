@@ -1,0 +1,42 @@
+// Update with your config settings.
+const path = require('path');
+const env = require('dotenv').config()
+
+var dotenvExpand = require('dotenv-expand')
+dotenvExpand(env)
+
+const BASE_PATH = path.join(__dirname, 'src', 'wallet', 'db');
+const CONN_STRING = `${process.env.SERVER_WALLET_DB_CONN_STRING}/${process.env.SERVER_WALLET_DB_NAME}`;
+
+module.exports = {
+  test: {
+    client: 'pg',
+    connection: CONN_STRING,
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+      extensions: [
+        "ts"
+      ]
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds')
+    },
+    pool: { min: 0, max: 1 }, // Limiting connection pool to one removes concurrency issues during testing.
+    debug: process.env.DEBUG_KNEX === 'TRUE',
+  },
+
+  development: {
+    client: 'pg',
+    connection: CONN_STRING,
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+      extensions: [
+        "ts"
+      ]
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds')
+    },
+    debug: process.env.DEBUG_KNEX === 'TRUE',
+  }
+};
