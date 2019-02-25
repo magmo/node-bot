@@ -59,7 +59,7 @@
       "./src/config/knexSetupTeardown.ts"
     ],
     "testMatch": [
-      "<rootDir>/**/?(*.)(spec|test).(j|t)s?(x)"
+      "<rootDir>/**/?(*.)(spec|test).ts"
     ],
     "testEnvironment": "node",
     "testURL": "http://localhost",
