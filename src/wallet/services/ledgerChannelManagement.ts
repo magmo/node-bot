@@ -10,7 +10,7 @@ import { ChannelResponse } from ".";
 import errors from "../errors";
 
 export default class LedgerChannelManagement {
-  static async openAllocatorChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
+  static async openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
       if (await LedgerChannelManagement.channelExists(theirCommitment)) {
         throw errors.CHANNEL_EXISTS;
       }
@@ -23,7 +23,7 @@ export default class LedgerChannelManagement {
       return LedgerChannelManagement.formResponse(allocator_channel);
   }
 
-  static async updateAllocatorChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
+  static async updateLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
       if (!(await LedgerChannelManagement.channelExists(theirCommitment))) {
           throw errors.CHANNEL_MISSING;
       }

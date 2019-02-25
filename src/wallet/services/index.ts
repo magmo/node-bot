@@ -19,6 +19,6 @@ export interface ChannelResponse {
 }
 
 export const channelExists: (c: Commitment) => Promise<boolean> = LedgerChannelManagement.channelExists;
-export const openAllocatorChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse> = LedgerChannelManagement.openAllocatorChannel;
-export const updateAllocatorChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse>  = LedgerChannelManagement.updateAllocatorChannel;
+export const openLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse> = LedgerChannelManagement.openLedgerChannel;
+export const updateLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse>  = LedgerChannelManagement.updateLedgerChannel;
 export const fund: (id: Address, amount: Uint256) => Promise<Uint256>  = Blockchain.fund;
