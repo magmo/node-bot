@@ -1,9 +1,9 @@
 // Update with your config settings.
 const path = require('path');
-const env = require('dotenv').config()
+const env = require('dotenv').config();
 
-var dotenvExpand = require('dotenv-expand')
-dotenvExpand(env)
+let dotenvExpand = require('dotenv-expand');
+dotenvExpand(env);
 
 const BASE_PATH = path.join(__dirname, 'src', 'wallet', 'db');
 const CONN_STRING = `${process.env.SERVER_WALLET_DB_CONN_STRING}/${process.env.SERVER_WALLET_DB_NAME}`;

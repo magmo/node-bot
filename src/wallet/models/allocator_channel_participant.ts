@@ -2,8 +2,6 @@ import { Model } from 'objection';
 import { Address } from '../../types';
 
 export default class AllocatorChannelParticipant extends Model {
-  readonly id!: number;
-  address!: Address;
 
   static tableName = 'allocator_channel_participants';
 
@@ -14,7 +12,9 @@ export default class AllocatorChannelParticipant extends Model {
       join: {
         from: 'allocator_channel_participants.allocator_channel_id',
         to: 'allocator_channels.id',
-      }
+      },
     },
-  }
+  };
+  readonly id!: number;
+  address!: Address;
 }

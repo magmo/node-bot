@@ -1,17 +1,17 @@
 import { Address, Bytes32, Uint8, Uint32, Bytes, } from "fmg-core";
 
-export type CommitmentString = string
+export type CommitmentString = string;
 
 export interface Signature {
-    r: Bytes32,
-    s: Bytes32,
-    v: Uint8,
+    r: Bytes32;
+    s: Bytes32;
+    v: Uint8;
 }
 
 export interface UpdateChannelParams {
-    from: Address,
-    commitment: CommitmentString,
-    signature: Signature,
+    from: Address;
+    commitment: CommitmentString;
+    signature: Signature;
 }
 
-export { Address, Bytes32, Bytes, Uint8, Uint32 }
+export { Address, Bytes32, Bytes, Uint8, Uint32 };

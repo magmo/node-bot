@@ -1,8 +1,8 @@
 import * as Knex from "knex";
 
-const TABLE_NAME = 'allocator_channels'
+const TABLE_NAME = 'allocator_channels';
 
-exports.up = async function(knex: Knex) {
+exports.up = async (knex: Knex) => {
     await knex.schema.createTable(TABLE_NAME, (table) => {
         table.increments();
         table.string('rules_address').notNullable();
@@ -15,6 +15,4 @@ exports.up = async function(knex: Knex) {
       });
 };
 
-exports.down = function(knex: Knex) {
-    return knex.schema.dropTable(TABLE_NAME)
-};
+exports.down = (knex: Knex) => knex.schema.dropTable(TABLE_NAME);

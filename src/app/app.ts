@@ -11,4 +11,4 @@ app.use(logger);
 app.use(indexRoutes);
 app.use(allocatorChannelRoutes);
 
-export default app
+export default app;

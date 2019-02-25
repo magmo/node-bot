@@ -1,17 +1,15 @@
-import * as Knex from "knex"
+import * as Knex from "knex";
 import { config as dotenvConfig } from 'dotenv';
 
 dotenvConfig();
 
 const environment = process.env.NODE_ENV || 'development';
-//ts-lint: ignore
+// tslint:disable-next-line:no-var-requires
 const config = require('../../../knexfile')[environment];
 
-//ts-lint: ignore
-const knex = Knex(config)
+const knex = Knex(config);
 
 import { Model } from 'objection';
-import { log } from "util";
-Model.knex(knex)
+Model.knex(knex);
 
 export default knex;

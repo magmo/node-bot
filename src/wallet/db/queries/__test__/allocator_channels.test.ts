@@ -1,4 +1,4 @@
-import { queries } from "../allocator_channels"
+import { queries } from "../allocator_channels";
 import knex from "../../connection";
 import { seeds, constructors as seedDataConstructors, } from "../../seeds/2_allocator_channels_seed";
 import { constructors as testDataConstructors, created_channel, } from "../../../../../test/test_data";
@@ -18,7 +18,7 @@ describe.skip("getAllAllocatorChannels", async () => {
     // The issue is that the records are not eagerly fetched
     expect(result[2]).toMatchObject(seeds.funded_channel);
   });
-})
+});
 
 // Maybe we don't need this
 describe.skip('getSingleAllocatorChannel', () => {
@@ -29,35 +29,35 @@ describe.skip('getSingleAllocatorChannel', () => {
 
 describe('openAllocatorChannel', () => {
   it('works', async () => {
-    const allocator_channel = await queries.openAllocatorChannel(testDataConstructors.pre_fund_setup(0))
-    expect.assertions(5)
+    const allocator_channel = await queries.openAllocatorChannel(testDataConstructors.pre_fund_setup(0));
+    expect.assertions(5);
 
-    expect(allocator_channel).toMatchObject(created_channel)
+    expect(allocator_channel).toMatchObject(created_channel);
     expect(
       (await knex('allocator_channels').select("*")).length
-    ).toEqual(SEEDED_CHANNELS + 1)
+    ).toEqual(SEEDED_CHANNELS + 1);
     expect(
       (await knex('allocator_channel_commitments').select("*")).length
-    ).toEqual(SEEDED_COMMITMENTS + 2)
+    ).toEqual(SEEDED_COMMITMENTS + 2);
 
     expect(
       (await knex('allocations').select("*")).length
-    ).toEqual(SEEDED_ALLOCATIONS + 4)
+    ).toEqual(SEEDED_ALLOCATIONS + 4);
 
     expect(
       (await knex('allocator_channel_participants').select("*")).length
-    ).toEqual(SEEDED_PARTICIPANTS + 2)
+    ).toEqual(SEEDED_PARTICIPANTS + 2);
     // done()
   });
 
   it('throws when the nonce has already been used', async () => {
     const commitment = testDataConstructors.pre_fund_setup(0);
-    await queries.openAllocatorChannel(commitment)
-    expect.assertions(1)
+    await queries.openAllocatorChannel(commitment);
+    expect.assertions(1);
     // TODO: Figure out how to more nicely test this ...
     await queries.openAllocatorChannel(commitment).catch( err => {
       expect(err.message).toMatch('duplicate key value violates unique constraint "allocator_channels_nonce_unique"');
-    })
+    });
 
   });
 });
@@ -68,40 +68,40 @@ describe('updateAllocatorChannel', () => {
     const existing_allocator_channel = await AllocatorChannel.query()
     .where({nonce, rules_address: channelType })
     .eager('[commitments.[allocations],participants]')
-    .first()
+    .first();
 
-    expect(existing_allocator_channel).toMatchObject(seeds.funded_channel)
+    expect(existing_allocator_channel).toMatchObject(seeds.funded_channel);
 
     const updated_allocator_channel = await queries.updateAllocatorChannel(
       testDataConstructors.post_fund_setup(2),
       testDataConstructors.post_fund_setup(3),
-    )
+    );
 
     expect(updated_allocator_channel).toMatchObject({
       ...seeds.funded_channel,
       commitments: [
         seedDataConstructors.post_fund_setup(2),
         seedDataConstructors.post_fund_setup(3),
-      ]
-    })
+      ],
+    });
 
     expect(
       (await knex('allocator_channels').select("*")).length
-    ).toEqual(SEEDED_CHANNELS)
+    ).toEqual(SEEDED_CHANNELS);
     expect(
       (await knex('allocator_channel_commitments').where({ allocator_channel_id: updated_allocator_channel.id }).select("*")).length
-    ).toEqual(2)
+    ).toEqual(2);
 
     expect(
       (await knex('allocations').select("*")).length
-    ).toEqual(SEEDED_ALLOCATIONS)
+    ).toEqual(SEEDED_ALLOCATIONS);
 
     expect(
       (await knex('allocator_channel_participants').select("*")).length
-    ).toEqual(SEEDED_PARTICIPANTS)
+    ).toEqual(SEEDED_PARTICIPANTS);
   });
 
   it.skip('throws when the channel doesn\'t exist', async () => {
-    expect.assertions(1)
+    expect.assertions(1);
   });
 });

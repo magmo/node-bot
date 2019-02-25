@@ -7,4 +7,4 @@ const server = app.listen(config.port).on("error", err => {
 
 console.log("Application started. Listening on port:" + config.port);
 
-export default server
+export default server;

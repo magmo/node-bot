@@ -4,12 +4,14 @@ import { Channel, Uint32, Address } from 'fmg-core';
 import AllocatorChannelParticipant from './allocator_channel_participant';
 
 export default class AllocatorChannel extends Model {
-  readonly id!: number;
-  holdings!: number;
-  nonce: Uint32;
-  participants: AllocatorChannelParticipant[];
-  commitments: ConsensusCommitment[];
-  rules_address: Address;
+
+  get asCoreChannel(): Channel {
+    return {
+      channelType: this.rules_address,
+      nonce: this.nonce,
+      participants: this.participants.map(p => p.address),
+    };
+  }
 
   static tableName = 'allocator_channels';
 
@@ -20,23 +22,21 @@ export default class AllocatorChannel extends Model {
       join: {
         from: 'allocator_channels.id',
         to: 'allocator_channel_participants.allocator_channel_id',
-      }
+      },
     },
     commitments: {
       relation: Model.HasManyRelation,
       modelClass: ConsensusCommitment,
       join: {
         from: 'allocator_channels.id',
-        to: 'allocator_channel_commitments.allocator_channel_id'
-      }
-    }
+        to: 'allocator_channel_commitments.allocator_channel_id',
+      },
+    },
   };
-
-  get asCoreChannel(): Channel {
-    return {
-      channelType: this.rules_address,
-      nonce: this.nonce,
-      participants: this.participants.map(p => p.address),
-    }
-  }
+  readonly id!: number;
+  holdings!: number;
+  nonce: Uint32;
+  participants: AllocatorChannelParticipant[];
+  commitments: ConsensusCommitment[];
+  rules_address: Address;
 }

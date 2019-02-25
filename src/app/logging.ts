@@ -40,7 +40,7 @@ export async function logger(ctx: Koa.Context, next: () => Promise<any>) {
         url: ctx.url,
         query: ctx.query,
         remoteAddress: ctx.request.ip,
-        host: ctx.headers['host'],
+        host: ctx.headers.host,
         userAgent: ctx.headers['user-agent'],
     };
 

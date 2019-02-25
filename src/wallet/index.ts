@@ -1,6 +1,6 @@
 import {
     queries
-} from "./db/queries/allocator_channels"
+} from "./db/queries/allocator_channels";
 
 import * as services from "./services";
 import { Commitment, Signature, } from "fmg-core";
@@ -11,7 +11,7 @@ export function getAllAllocatorChannels() {
 }
 
 export function getSingleAllocatorChannel(id: number) {
-    return queries.getSingleAllocatorChannel(id)
+    return queries.getSingleAllocatorChannel(id);
 }
 
 export function openAllocatorChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {

@@ -1,5 +1,4 @@
-import * as Knex from "knex";
-import { DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, FUNDED_CHANNEL_HOLDINGS, HUB_ADDRESS, PARTICIPANT_ADDRESS, DESTINATION, ALLOCATION, BEGINNING_APP_CHANNEL_NONCE, BEGINNING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, ONGOING_APP_CHANNEL_HOLDINGS } from "../../../constants"
+import { DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, FUNDED_CHANNEL_HOLDINGS, HUB_ADDRESS, PARTICIPANT_ADDRESS, DESTINATION, ALLOCATION, BEGINNING_APP_CHANNEL_NONCE, BEGINNING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, ONGOING_APP_CHANNEL_HOLDINGS } from "../../../constants";
 import AllocatorChannel from "../../models/allocatorChannel";
 import { Model } from "objection";
 import knex from "../connection";
@@ -7,34 +6,34 @@ import { CommitmentType } from "fmg-core";
 import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
 Model.knex(knex);
 
-const participants = [{ address: PARTICIPANT_ADDRESS, priority: 0}, { address: HUB_ADDRESS, priority: 1 }]
+const participants = [{ address: PARTICIPANT_ADDRESS, priority: 0}, { address: HUB_ADDRESS, priority: 1 }];
 
 const channel_1 = {
   rules_address: DUMMY_RULES_ADDRESS,
   nonce: 1,
   holdings: 0,
   participants,
-}
+};
 
 const channel_2 = {
   rules_address: DUMMY_RULES_ADDRESS,
   nonce: 2,
   holdings: 0,
   participants,
-}
+};
 
 const allocationByPriority = (priority: number) => ({
   priority,
   destination: DESTINATION[priority],
   amount: ALLOCATION[priority],
-})
+});
 
-const allocations = () => [allocationByPriority(0), allocationByPriority(1)]
+const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
 const app_attrs = (n: number) => bytesFromAppAttributes({
   consensusCounter: 0,
   proposedAllocation: ALLOCATION,
   proposedDestination: DESTINATION,
-})
+});
 
 function pre_fund_setup(turn_number: number) {
   return {
@@ -42,8 +41,8 @@ function pre_fund_setup(turn_number: number) {
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
     allocations: allocations(),
-    app_attrs: app_attrs(0)
-  }
+    app_attrs: app_attrs(0),
+  };
 }
 
 const funded_channel = {
@@ -55,7 +54,7 @@ const funded_channel = {
     pre_fund_setup(1),
   ],
   participants,
-}
+};
 
 function post_fund_setup(turn_number: number) {
   return {
@@ -64,7 +63,7 @@ function post_fund_setup(turn_number: number) {
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
     app_attrs: app_attrs(0),
-  }
+  };
 }
 
 const beginning_app_phase_channel = {
@@ -76,7 +75,7 @@ const beginning_app_phase_channel = {
     post_fund_setup(1),
   ],
   participants,
-}
+};
 
 function app(turn_number: number) {
   return {
@@ -84,8 +83,8 @@ function app(turn_number: number) {
     commitment_type: CommitmentType.PostFundSetup,
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
-    app_attrs: app_attrs(turn_number % participants.length)
-  }
+    app_attrs: app_attrs(turn_number % participants.length),
+  };
 }
 
 const ongoing_app_phase_channel = {
@@ -97,7 +96,7 @@ const ongoing_app_phase_channel = {
     app(1),
   ],
   participants,
-}
+};
 
 export const seeds = {
   channel_1,
@@ -105,15 +104,15 @@ export const seeds = {
   funded_channel,
   beginning_app_phase_channel,
   ongoing_app_phase_channel,
-}
+};
 
-export async function seed(knex: Knex) {
-  await knex('allocator_channels').del()
+export async function seed() {
+  await knex('allocator_channels').del();
   await AllocatorChannel.query().insertGraph(Object.values(seeds));
 }
 
 export const constructors = {
   pre_fund_setup,
   post_fund_setup,
-  app
-}
+  app,
+};

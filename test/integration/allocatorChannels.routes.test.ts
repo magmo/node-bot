@@ -1,18 +1,18 @@
 process.env.NODE_ENV = 'test';
 
-import * as supertest from "supertest"
-import app from "../../src/app/app"
+import * as supertest from "supertest";
+import app from "../../src/app/app";
 import {
   seeds,
-} from '../../src/wallet/db/seeds/2_allocator_channels_seed'
-import { open_channel_params, created_channel_response, pre_fund_setup_1_response, invalid_open_channel_params } from "../../test/test_data"
+} from '../../src/wallet/db/seeds/2_allocator_channels_seed';
+import { open_channel_params, created_channel_response, pre_fund_setup_1_response, invalid_open_channel_params } from "../../test/test_data";
 import errors from "../../src/wallet/errors";
 
 const persistedAllocatorChannels = [
   { ...seeds.channel_1, id: 1}
-]
+];
 
-const BASE_URL = "/api/v1/allocator_channels"
+const BASE_URL = "/api/v1/allocator_channels";
 
 describe('routes : allocator_channels', () => {
   describe.skip('GET: ', () => { // skip for now, we don't need GET right away
@@ -20,8 +20,8 @@ describe('routes : allocator_channels', () => {
         const response = await supertest(app.callback()).get(BASE_URL);
         expect(response.status).toEqual(200);
         expect(response.type).toEqual("application/json");
-        expect(response.body.allocatorChannels.length).toEqual(Object.keys(seeds).length)
-        expect(response.body.allocatorChannels[0]).toMatchObject(persistedAllocatorChannels[0])
+        expect(response.body.allocatorChannels.length).toEqual(Object.keys(seeds).length);
+        expect(response.body.allocatorChannels[0]).toMatchObject(persistedAllocatorChannels[0]);
     });
 
     it("should respond with a single allocator channel when it exists", async () => {
@@ -56,7 +56,7 @@ describe('routes : allocator_channels', () => {
     describe('when the channel doesn\'t exist', () => {
       describe('when the number of participants is not 2', () => {
         it.skip('returns 400', () => {
-          expect.assertions(1)
+          expect.assertions(1);
         });
       });
 
@@ -79,7 +79,7 @@ describe('routes : allocator_channels', () => {
     describe('when the channel exists', () => {
       describe('when the commitment type is post-fund setup', () => {
         it.skip("responds with a signed post-fund setup commitment when the channel is funded", async () => {
-          expect.assertions(1)
+          expect.assertions(1);
         });
       });
 

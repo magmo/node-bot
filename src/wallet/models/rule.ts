@@ -3,9 +3,6 @@ import { Address } from 'fmg-core';
 import AllocatorChannel from './allocatorChannel';
 
 export default class Rule extends Model {
-  readonly id!: string;
-  readonly address!: Address;
-  readonly name!: string;
 
   static tableName = 'rules';
   static idColumn = 'address';
@@ -17,7 +14,10 @@ export default class Rule extends Model {
       join: {
         to: 'allocator_channels.rule_id',
         from: 'rules.id',
-      }
+      },
     },
   };
+  readonly id!: string;
+  readonly address!: Address;
+  readonly name!: string;
 }

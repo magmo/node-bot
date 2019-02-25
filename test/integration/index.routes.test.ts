@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 
-import * as request from "supertest"
-import app from "../../src/app/app"
+import * as request from "supertest";
+import app from "../../src/app/app";
 
 describe("routes: index", () => {
   test("should respond as expected", async () => {
@@ -10,4 +10,4 @@ describe("routes: index", () => {
     expect(response.type).toEqual("application/json");
     expect(response.body.data).toEqual("Welcome to the Nitro hub, where everything happens REALLY fast!");
   });
-})
+});

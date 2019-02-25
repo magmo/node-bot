@@ -12,7 +12,7 @@ const provider = new providers.JsonRpcProvider(`http://${process.env.DEV_GANACHE
 const providerSigner = provider.getSigner();
 
 export async function nitroAdjudicator() {
-  return setupContract(nitroAdjudicatorArtifact)
+  return setupContract(nitroAdjudicatorArtifact);
 }
 
 async function setupContract(artifact: any) {
@@ -22,12 +22,12 @@ async function setupContract(artifact: any) {
     artifact,
     "bytecode", 
    {value: linkedByteCode(artifact, CommitmentArtifact, networkId)}
-   )
+   );
   Object.defineProperty(
     artifact,
     "bytecode", 
    {value: linkedByteCode(artifact, RulesArtifact, networkId)}
-   )
+   );
 
   const nitroFactory = await ContractFactory.fromSolidity(artifact, providerSigner);
   const contract = await nitroFactory.attach(artifact.networks[networkId].address);

@@ -10,7 +10,8 @@
     "db:rollback": "npx knex migrate:rollback",
     "db:seed": "npx knex seed:run",
     "test": "SERVER_WALLET_DB_NAME=server_wallet_test npx jest --runInBand",
-    "watch-server": "SERVER_WALLET_DB_NAME=server_wallet_development nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app/server.ts"
+    "watch-server": "SERVER_WALLET_DB_NAME=server_wallet_development nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app/server.ts",
+    "build": "npx tsc"
   },
   "author": "",
   "license": "MIT",
@@ -43,7 +44,10 @@
     "truffle": "^5.0.0-beta.2",
     "truffle-hdwallet-provider": "^1.0.4",
     "ts-jest": "^24",
+    "ts-lint": "^4.5.1",
     "ts-node": "^8.0.2",
+    "tslint-config": "^0.0.1",
+    "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.3.3"
   },
   "jest": {
@@ -51,7 +55,9 @@
       "src/**/*.{js,jsx,ts,tsx}"
     ],
     "setupFiles": [],
-    "setupFilesAfterEnv": ["./src/config/knexSetupTeardown.ts"],
+    "setupFilesAfterEnv": [
+      "./src/config/knexSetupTeardown.ts"
+    ],
     "testMatch": [
       "<rootDir>/**/?(*.)(spec|test).(j|t)s?(x)"
     ],

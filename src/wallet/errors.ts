@@ -1,8 +1,8 @@
-const CHANNEL_EXISTS = new Error("Channel exists")
-const CHANNEL_MISSING = new Error("Channe does not exist")
-const COMMITMENT_NOT_SIGNED = new Error("Commitment not signed by mover")
-const INVALID_TRANSITION = new Error( "Invalid transition")
-const VALUE_LOST = new Error("Value not preserved")
+const CHANNEL_EXISTS = new Error("Channel exists");
+const CHANNEL_MISSING = new Error("Channe does not exist");
+const COMMITMENT_NOT_SIGNED = new Error("Commitment not signed by mover");
+const INVALID_TRANSITION = new Error( "Invalid transition");
+const VALUE_LOST = new Error("Value not preserved");
 
 export default {
     CHANNEL_EXISTS,
@@ -10,4 +10,4 @@ export default {
     CHANNEL_MISSING,
     INVALID_TRANSITION,
     VALUE_LOST,
-}
+};
