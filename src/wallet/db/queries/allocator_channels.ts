@@ -5,7 +5,7 @@ import {
   Uint32,
   Commitment,
 } from "fmg-core"
-import { appAttributesFromBytes } from "fmg-nitro-adjudicator";
+import { appAttributesFromBytes, bytesFromAppAttributes } from "fmg-nitro-adjudicator";
 import knex from "../connection"
 import { CommitmentString } from "../../../types";
 import AllocatorChannel from "../../models/allocatorChannel";
@@ -48,14 +48,18 @@ async function openAllocatorChannel(theirCommitment: Commitment) {
   })
 
   const allocations = () => [allocationByPriority(0), allocationByPriority(1)]
+  const app_attrs = (n: number) => bytesFromAppAttributes({
+    consensusCounter: n,
+    proposedAllocation: allocations().map(a => a.amount),
+    proposedDestination: allocations().map(a => a.destination),
+  })
 
   const commitment = (turn_number: Uint32) => ({
     turn_number,
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
-    consensus_count: 0,
     allocations: allocations(),
-    proposed_allocations: allocations(),
+    app_attrs: app_attrs(0)
   })
 
   const commitments = [commitment(0), commitment(1)]
@@ -93,23 +97,19 @@ async function updateAllocatorChannel(theirCommitment: Commitment, hubCommitment
 
   const allocations = (c: Commitment) => [allocationByPriority(0, c), allocationByPriority(1, c)]
 
-  const consensusCounter = (c: Commitment) => appAttributesFromBytes(c.appAttributes).consensusCounter
-  const proposedAllocation = (c: Commitment) => appAttributesFromBytes(c.appAttributes).proposedAllocation
-  const proposedDestination = (c: Commitment) => appAttributesFromBytes(c.appAttributes).proposedDestination
   const commitment = (c: Commitment) => ({
     turn_number: c.turnNum,
     commitment_type: c.commitmentType,
     commitment_count: c.commitmentCount,
     allocations: allocations(c),
-    consensus_count: consensusCounter(c),
-    proposed_allocations: allocations({...c, allocation: proposedAllocation(c), destination: proposedDestination(c)}),
+    app_attrs: c.appAttributes,
   })
 
   const commitments = [commitment(theirCommitment), commitment(hubCommitment)]
 
   return AllocatorChannel
   .query()
-  .eager('[commitments.[allocations,proposed_allocations],participants]')
+  .eager('[commitments.[allocations],participants]')
   .upsertGraphAndFetch({
     id: allocator_channel.id,
     commitments,

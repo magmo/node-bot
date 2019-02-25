@@ -49,6 +49,15 @@ router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
 
             return;
           }
+          case errors.COMMITMENT_NOT_SIGNED: {
+            ctx.status = 400;
+            ctx.body = {
+              status: 'error',
+              message: errors.COMMITMENT_NOT_SIGNED.message,
+            };
+
+            return;
+          }
         }
         console.log(err)
       }

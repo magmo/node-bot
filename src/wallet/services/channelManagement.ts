@@ -15,7 +15,7 @@ export default class ChannelManagement {
         throw errors.CHANNEL_EXISTS
       }
 
-      if (!ChannelManagement.validSignature(theirCommitment, theirSignature)) {
+      if (!await ChannelManagement.validSignature(theirCommitment, theirSignature)) {
         throw errors.COMMITMENT_NOT_SIGNED
       }
 
@@ -114,13 +114,11 @@ export default class ChannelManagement {
 
   private static async formResponse(allocator_channel: any) {
       const commitment = await ConsensusCommitment.query()
-      .eager("[allocator_channel.[participants],allocations,proposed_allocations]").findById(allocator_channel.commitments[1].id);
+      .eager("[allocator_channel.[participants],allocations]").findById(allocator_channel.commitments[1].id);
       const signature = sign(commitment.toHex, HUB_PRIVATE_KEY)
 
       const { id: allocator_channel_id, participants, nonce, rules_address, holdings } = allocator_channel;
-      const { id: commitment_id, turn_number, commitment_count, commitment_type, allocations, } = commitment;
-
-      const app_attrs = bytesFromAppAttributes(commitment.appAttributes);
+      const { id: commitment_id, turn_number, commitment_count, commitment_type, allocations, app_attrs } = commitment;
 
       return {
         commitment: {

@@ -2,7 +2,6 @@ import { Model } from 'objection';
 import ConsensusCommitment from './allocatorChannelCommitment';
 import { Channel, Uint32, Address } from 'fmg-core';
 import AllocatorChannelParticipant from './allocator_channel_participant';
-import Rule from './rule';
 
 export default class AllocatorChannel extends Model {
   readonly id!: number;

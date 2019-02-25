@@ -28,7 +28,7 @@ describe.skip('getSingleAllocatorChannel', () => {
 });
 
 describe('openAllocatorChannel', () => {
-  it.only('works', async () => {
+  it('works', async () => {
     const allocator_channel = await queries.openAllocatorChannel(testDataConstructors.pre_fund_setup(0))
     expect.assertions(5)
 
@@ -67,7 +67,7 @@ describe('updateAllocatorChannel', () => {
     const { nonce, channelType } = testDataConstructors.post_fund_setup(2).channel;
     const existing_allocator_channel = await AllocatorChannel.query()
     .where({nonce, rules_address: channelType })
-    .eager('[commitments.[allocations,proposed_allocations],participants]')
+    .eager('[commitments.[allocations],participants]')
     .first()
 
     expect(existing_allocator_channel).toMatchObject(seeds.funded_channel)

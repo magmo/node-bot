@@ -17,7 +17,6 @@ $ yarn watch-server (will rebuild app on file change)
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat open_channel.sample.json)" http://localhost:3000/api/v1/allocator_channels 
 ```
 
-
 ## Testing
 
 ```

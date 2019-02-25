@@ -4,6 +4,7 @@ import AllocatorChannel from "../../models/allocatorChannel";
 import { Model } from "objection";
 import knex from "../connection";
 import { CommitmentType } from "fmg-core";
+import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
 Model.knex(knex);
 
 const participants = [{ address: PARTICIPANT_ADDRESS, priority: 0}, { address: HUB_ADDRESS, priority: 1 }]
@@ -29,15 +30,19 @@ const allocationByPriority = (priority: number) => ({
 })
 
 const allocations = () => [allocationByPriority(0), allocationByPriority(1)]
+const app_attrs = (n: number) => bytesFromAppAttributes({
+  consensusCounter: 0,
+  proposedAllocation: ALLOCATION,
+  proposedDestination: DESTINATION,
+})
 
 function pre_fund_setup(turn_number: number) {
   return {
-    consensus_count: 0,
     turn_number,
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
     allocations: allocations(),
-    proposed_allocations: allocations(),
+    app_attrs: app_attrs(0)
   }
 }
 
@@ -54,12 +59,11 @@ const funded_channel = {
 
 function post_fund_setup(turn_number: number) {
   return {
-    consensus_count: 0,
     turn_number,
     commitment_type: CommitmentType.PostFundSetup,
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
-    proposed_allocations: allocations(),
+    app_attrs: app_attrs(0),
   }
 }
 
@@ -76,12 +80,11 @@ const beginning_app_phase_channel = {
 
 function app(turn_number: number) {
   return {
-    consensus_count: turn_number % participants.length,
     turn_number,
     commitment_type: CommitmentType.PostFundSetup,
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
-    proposed_allocations: allocations(),
+    app_attrs: app_attrs(turn_number % participants.length)
   }
 }
 

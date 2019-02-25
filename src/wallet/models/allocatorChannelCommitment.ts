@@ -1,18 +1,10 @@
 import { Model } from 'objection';
 import AllocatorChannel from './allocatorChannel';
 import { CommitmentType, Commitment, Uint256, Address, Uint32, Bytes, toHex } from 'fmg-core';
-import { bytesFromAppAttributes } from 'fmg-nitro-adjudicator';
 
 import Allocation from './allocation';
-import ProposedAllocation from './proposed_allocation';
 
-interface ConsensusAppAttributes {
-  consensusCounter: Uint32,
-  proposedAllocation: Uint256[],
-  proposedDestination: Address[],
-}
-
-export default class ConsensusCommitment extends Model {
+export default class AllocatorChannelCommitment extends Model {
   readonly id!: number;
   allocator_channel!: AllocatorChannel;
   allocator_channel_id!: number;
@@ -20,9 +12,7 @@ export default class ConsensusCommitment extends Model {
   commitment_type!: CommitmentType;
   commitment_count!: Uint32;
   allocations!: Allocation[];
-
-  consensus_count!: Uint32;
-  proposed_allocations!: Allocation[];
+  app_attrs!: Bytes;
 
   static tableName = 'allocator_channel_commitments';
 
@@ -43,23 +33,7 @@ export default class ConsensusCommitment extends Model {
         to: 'allocations.allocator_channel_commitment_id',
       }
     },
-    proposed_allocations: {
-      relation: Model.HasManyRelation,
-      modelClass: ProposedAllocation,
-      join: {
-        from: 'allocator_channel_commitments.id',
-        to: 'proposed_allocations.allocator_channel_commitment_id',
-      }
-    },
   };
-
-  get appAttributes(): ConsensusAppAttributes {
-    return {
-      consensusCounter: this.consensus_count,
-      proposedAllocation: this.proposed_allocations.sort(priority).map(amount),
-      proposedDestination: this.proposed_allocations.sort(priority).map(destination),
-    }
-  }
 
   get toHex(): Bytes {
     return toHex(this.asCoreCommitment)
@@ -71,9 +45,9 @@ export default class ConsensusCommitment extends Model {
       commitmentCount: this.commitment_count,
       turnNum: this.turn_number,
       channel: this.allocator_channel.asCoreChannel,
-      allocation: this.allocations.sort(a => a.priority).map(a => a.amount),
-      destination: this.allocations.sort(a => a.priority).map(a => a.destination),
-      appAttributes: bytesFromAppAttributes(this.appAttributes),
+      allocation: this.allocations.sort(priority).map(amount),
+      destination: this.allocations.sort(priority).map(destination),
+      appAttributes: this.app_attrs,
     }
   }
 }

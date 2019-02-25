@@ -15,10 +15,10 @@ export const funded_channel: Channel = {
     nonce: FUNDED_CHANNEL_NONCE,
 }
 
-const app_attrs = (n: number) => bytesFromAppAttributes({
+const app_attrs = (n: number, proposedAllocation=ALLOCATION, proposedDestination=DESTINATION) => bytesFromAppAttributes({
   consensusCounter: n % 2,
-  proposedAllocation: ALLOCATION,
-  proposedDestination: DESTINATION,
+  proposedAllocation,
+  proposedDestination,
 });
 
 const base = {
@@ -145,12 +145,10 @@ export const created_pre_fund_setup_1 = {
   allocator_channel_id: expect.any(Number),
   turn_number: 1,
   commitment_count: 1,
-  consensus_count: 1,
   commitment_type: CommitmentType.PreFundSetup,
   allocation: ALLOCATION,
   destination: DESTINATION,
-  proposed_allocation: ALLOCATION,
-  proposed_destination: DESTINATION,
+  appAttributes: app_attrs(1),
 }
 
 export const sample_participants = [
