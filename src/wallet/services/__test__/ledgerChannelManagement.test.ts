@@ -50,7 +50,7 @@ describe("validateCommitment", () => {
   });
 });
 
-describe("openAllocatorChannel", () => {
+describe("openLedgerChannel", () => {
   beforeEach(() => {
     theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
 
@@ -62,7 +62,7 @@ describe("openAllocatorChannel", () => {
 
   it("should return an allocator channel and a signed commitment", async () => {
     theirSignature = sign(toHex(pre_fund_setup_0), "0xf00");
-    const { allocator_channel, commitment, signature } = await LedgerChannelManagement.openAllocatorChannel(pre_fund_setup_0, theirSignature);
+    const { allocator_channel, commitment, signature } = await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature);
     expect(allocator_channel).toMatchObject(created_channel_response);
     expect(commitment).toMatchObject(pre_fund_setup_1_response);
 
@@ -75,7 +75,7 @@ describe("openAllocatorChannel", () => {
     const unknown_rules = JSON.parse(JSON.stringify(pre_fund_setup_1));
     unknown_rules.channel.channelType = UNKNOWN_RULES_ADDRESS;
     const signature = sign(toHex(unknown_rules), HUB_PRIVATE_KEY);
-    await LedgerChannelManagement.openAllocatorChannel(unknown_rules, signature).catch( err => {
+    await LedgerChannelManagement.openLedgerChannel(unknown_rules, signature).catch( err => {
       expect(err.message).toMatch(
         'insert or update on table \"allocator_channels\" violates foreign key constraint \"allocator_channels_rules_address_foreign\"'
       );
@@ -86,7 +86,7 @@ describe("openAllocatorChannel", () => {
     mockFunction(LedgerChannelManagement, "validSignature", returnFalse);
     expect.assertions(1);
 
-    await LedgerChannelManagement.openAllocatorChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
+    await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
       expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
     });
   });
@@ -95,13 +95,13 @@ describe("openAllocatorChannel", () => {
     mockFunction(LedgerChannelManagement, "channelExists", returnTrue);
     expect.assertions(1);
 
-    await LedgerChannelManagement.openAllocatorChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
+    await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
       expect(err).toMatchObject(errors.CHANNEL_EXISTS);
     });
   });
 });
 
-describe("updateAllocatorChannel", () => {
+describe("updateLedgerChannel", () => {
   describe('transitioning to a postFundSetup commitment', () => {
     beforeEach(() => {
       theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
@@ -113,7 +113,7 @@ describe("updateAllocatorChannel", () => {
     });
   
     it("should return an allocator channel and a signed commitment", async () => {
-      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateAllocatorChannel(post_fund_setup_0, theirSignature);
+      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature);
       expect(allocator_channel).toMatchObject(funded_channel_response);
       expect(commitment).toMatchObject(post_fund_setup_1_response);
   
@@ -123,7 +123,7 @@ describe("updateAllocatorChannel", () => {
     it('throws when the commitment is invalid', async () => {
       mockFunction(LedgerChannelManagement, "validSignature", returnFalse);
       expect.assertions(1);
-      await LedgerChannelManagement.updateAllocatorChannel(post_fund_setup_0, theirSignature).catch((err: Error) => {
+      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch((err: Error) => {
         expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
       });
     });
@@ -132,7 +132,7 @@ describe("updateAllocatorChannel", () => {
       expect.assertions(2);
       mockFunction(LedgerChannelManagement, "validTransition", returnFalse);
   
-      await LedgerChannelManagement.updateAllocatorChannel(post_fund_setup_0, theirSignature).catch(err => {
+      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.INVALID_TRANSITION);
       });
   
@@ -144,7 +144,7 @@ describe("updateAllocatorChannel", () => {
   
       expect.assertions(1);
   
-      await LedgerChannelManagement.updateAllocatorChannel(post_fund_setup_0, theirSignature).catch(err => {
+      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.VALUE_LOST);
       });
     });
@@ -165,7 +165,7 @@ describe("updateAllocatorChannel", () => {
     });
 
     it("should return an allocator channel and a signed commitment", async () => {
-      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateAllocatorChannel(app_0, theirSignature);
+      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateLedgerChannel(app_0, theirSignature);
       expect(allocator_channel).toMatchObject(funded_channel_response);
       expect(commitment).toMatchObject(app_1_response);
   
