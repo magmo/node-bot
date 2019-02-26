@@ -30,7 +30,7 @@ const allocationByPriority = (priority: number) => ({
 
 const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
 const app_attrs = (n: number) => bytesFromAppAttributes({
-  consensusCounter: 0,
+  consensusCounter: n,
   proposedAllocation: ALLOCATION,
   proposedDestination: DESTINATION,
 });
@@ -71,8 +71,8 @@ const beginning_app_phase_channel = {
   nonce: BEGINNING_APP_CHANNEL_NONCE,
   holdings: BEGINNING_APP_CHANNEL_HOLDINGS,
   commitments: [ 
-    post_fund_setup(0),
-    post_fund_setup(1),
+    post_fund_setup(2),
+    post_fund_setup(3),
   ],
   participants,
 };
@@ -92,8 +92,8 @@ const ongoing_app_phase_channel = {
   nonce: ONGOING_APP_CHANNEL_NONCE,
   holdings: ONGOING_APP_CHANNEL_HOLDINGS,
   commitments: [ 
-    app(0),
-    app(1),
+    app(4),
+    app(5),
   ],
   participants,
 };

@@ -1,5 +1,5 @@
 import { Commitment, Uint32, Channel, Signature, Address, Uint256 } from "fmg-core";
-import LedgerChannelManagement from "./ledgerChannelManagement";
+import LedgerChannelManager from "./ledgerChannelManagement";
 import { Blockchain } from "./blockchain";
 
 export interface IAllocatorChannel extends Channel {
@@ -18,7 +18,7 @@ export interface ChannelResponse {
     signature: Signature;
 }
 
-export const channelExists: (c: Commitment) => Promise<boolean> = LedgerChannelManagement.channelExists;
-export const openLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse> = LedgerChannelManagement.openLedgerChannel;
-export const updateLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse>  = LedgerChannelManagement.updateLedgerChannel;
+export const channelExists: (c: Commitment) => Promise<boolean> = LedgerChannelManager.channelExists;
+export const openLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse> = LedgerChannelManager.openLedgerChannel;
+export const updateLedgerChannel: (c: Commitment, s: Signature) => Promise<ChannelResponse>  = LedgerChannelManager.updateLedgerChannel;
 export const fund: (id: Address, amount: Uint256) => Promise<Uint256>  = Blockchain.fund;

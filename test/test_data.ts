@@ -1,5 +1,5 @@
 import { sign, Channel, Commitment, CommitmentType, toHex, } from 'fmg-core';
-import { DUMMY_RULES_ADDRESS, HUB_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANT_ADDRESS, PARTICIPANT_PRIVATE_KEY, FUNDED_CHANNEL_HOLDINGS,  NONCE, ALLOCATION, DESTINATION, PARTICIPANTS } from "../src/constants";
+import { DUMMY_RULES_ADDRESS, HUB_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANT_ADDRESS, PARTICIPANT_PRIVATE_KEY, FUNDED_CHANNEL_HOLDINGS,  NONCE, ALLOCATION, DESTINATION, PARTICIPANTS, BEGINNING_APP_CHANNEL_NONCE, BEGINNING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE } from "../src/constants";
 import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
 import { IAllocatorChannelCommitment } from '../src/wallet/services';
 
@@ -13,6 +13,18 @@ export const funded_channel: Channel = {
     channelType: DUMMY_RULES_ADDRESS,
     participants: PARTICIPANTS,
     nonce: FUNDED_CHANNEL_NONCE,
+};
+
+export const beginning_app_phase_channel: Channel = {
+    channelType: DUMMY_RULES_ADDRESS,
+    participants: PARTICIPANTS,
+    nonce: BEGINNING_APP_CHANNEL_NONCE,
+};
+
+export const ongoing_app_phase_channel: Channel = {
+    channelType: DUMMY_RULES_ADDRESS,
+    participants: PARTICIPANTS,
+    nonce: ONGOING_APP_CHANNEL_NONCE,
 };
 
 const app_attrs = (n: number, proposedAllocation=ALLOCATION, proposedDestination=DESTINATION) => bytesFromAppAttributes({
@@ -63,7 +75,7 @@ function post_fund_setup(turnNum: number): Commitment {
 function app(turnNum: number, channel: Channel): Commitment {
   return {
     ...base,
-    channel: funded_channel,
+    channel,
     turnNum,
     appAttributes: app_attrs(turnNum % channel.participants.length),
     commitmentCount: 0,
@@ -99,7 +111,7 @@ export const app_1_response: IAllocatorChannelCommitment = {
   turnNum: 5,
   appAttributes: app_attrs(1),
   commitmentCount: 0,
-  channel: funded_channel,
+  channel: beginning_app_phase_channel,
   commitmentType: CommitmentType.App,
 };
 
@@ -138,6 +150,22 @@ export const funded_channel_response = {
   channelType: DUMMY_RULES_ADDRESS,
   participants: PARTICIPANTS,
   nonce: FUNDED_CHANNEL_NONCE,
+};
+
+export const beginning_app_phase_channel_response = {
+  id: expect.any(Number),
+  holdings: BEGINNING_APP_CHANNEL_HOLDINGS,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: BEGINNING_APP_CHANNEL_NONCE,
+};
+
+export const ongoing_app_phase_channel_response = {
+  id: expect.any(Number),
+  holdings: ONGOING_APP_CHANNEL_HOLDINGS,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: ONGOING_APP_CHANNEL_NONCE,
 };
 
 export const created_pre_fund_setup_1 = {

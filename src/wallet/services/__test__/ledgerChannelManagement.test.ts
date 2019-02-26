@@ -1,10 +1,8 @@
-import { constructors as testDataConstructors, pre_fund_setup_1_response, created_channel_response, post_fund_setup_1_response, funded_channel_response, funded_channel, app_1_response } from "../../../../test/test_data";
-import LedgerChannelManagement from "../ledgerChannelManagement";
+import { constructors as testDataConstructors, pre_fund_setup_1_response, created_channel_response, post_fund_setup_1_response, funded_channel_response, funded_channel, app_1_response, beginning_app_phase_channel, ongoing_app_phase_channel } from "../../../../test/test_data";
+import * as LedgerChannelManager from "../ledgerChannelManagement";
 import { toHex, sign, Commitment, Signature } from "fmg-core";
-import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS } from "../../../constants";
-import { mockFunction, restoreFunctions, returnTrue, returnFalse } from "../../../../test-helpers";
+import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANTS } from "../../../constants";
 import errors from "../../errors";
-
 
 process.env.NODE_ENV = 'test';
 
@@ -24,49 +22,39 @@ beforeEach(() => {
   post_fund_setup_0 = testDataConstructors.post_fund_setup(2);
   post_fund_setup_1 = testDataConstructors.post_fund_setup(3);
 
-  app_0 = testDataConstructors.app(4, funded_channel);
-  app_1 = testDataConstructors.app(5, funded_channel);
-});
-
-afterEach(() => {
-  restoreFunctions(LedgerChannelManagement);
+  app_0 = testDataConstructors.app(4, beginning_app_phase_channel);
+  app_1 = testDataConstructors.app(5, beginning_app_phase_channel);
 });
 
 
 describe("validateCommitment", () => {
   it("returns true when the commitment was signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_1), HUB_PRIVATE_KEY);
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_1, signature)).toBe(true);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_1, signature)).toBe(true);
   });
 
   it("returns false when the commitment was not signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_0), HUB_PRIVATE_KEY);
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_0, signature)).toBe(false);
   });
 
   it("returns false when the commitment was not signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_0), "0xf00");
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_0, signature)).toBe(false);
   });
 });
 
 describe("openLedgerChannel", () => {
   beforeEach(() => {
-    theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
-
-    mockFunction(LedgerChannelManagement, "channelExists", returnFalse);
-    mockFunction(LedgerChannelManagement, "validTransition", returnTrue);
-    mockFunction(LedgerChannelManagement, "validSignature", returnTrue);
-    mockFunction(LedgerChannelManagement, "valuePreserved", returnTrue);
-  });
+    theirSignature = sign(toHex(pre_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
+  })
 
   it("should return an allocator channel and a signed commitment", async () => {
-    theirSignature = sign(toHex(pre_fund_setup_0), "0xf00");
-    const { allocator_channel, commitment, signature } = await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature);
+    const { allocator_channel, commitment, signature } = await LedgerChannelManager.openLedgerChannel(pre_fund_setup_0, theirSignature);
     expect(allocator_channel).toMatchObject(created_channel_response);
     expect(commitment).toMatchObject(pre_fund_setup_1_response);
 
-    expect(await LedgerChannelManagement.validSignature(commitment, signature)).toBe(true);
+    expect(await LedgerChannelManager.validSignature(commitment, signature)).toBe(true);
   });
 
   it('throws when the rules are not known', async () => {
@@ -75,27 +63,32 @@ describe("openLedgerChannel", () => {
     const unknown_rules = JSON.parse(JSON.stringify(pre_fund_setup_1));
     unknown_rules.channel.channelType = UNKNOWN_RULES_ADDRESS;
     const signature = sign(toHex(unknown_rules), HUB_PRIVATE_KEY);
-    await LedgerChannelManagement.openLedgerChannel(unknown_rules, signature).catch( err => {
+    await LedgerChannelManager.openLedgerChannel(unknown_rules, signature).catch( err => {
       expect(err.message).toMatch(
         'insert or update on table \"allocator_channels\" violates foreign key constraint \"allocator_channels_rules_address_foreign\"'
       );
     });
   });
 
-  it('throws when the commitment is invalid', async () => {
-    mockFunction(LedgerChannelManagement, "validSignature", returnFalse);
+  it('throws when the commitment is incorrectly signed', async () => {
     expect.assertions(1);
+    theirSignature = sign(toHex(pre_fund_setup_0), "0xf00");
 
-    await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
+    await LedgerChannelManager.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
       expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
     });
   });
 
   it('throws when the channel exists', async () => {
-    mockFunction(LedgerChannelManagement, "channelExists", returnTrue);
     expect.assertions(1);
 
-    await LedgerChannelManagement.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
+    pre_fund_setup_0.channel = {
+      channelType: DUMMY_RULES_ADDRESS,
+      nonce: FUNDED_CHANNEL_NONCE,
+      participants: PARTICIPANTS,
+    }
+
+    await LedgerChannelManager.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
       expect(err).toMatchObject(errors.CHANNEL_EXISTS);
     });
   });
@@ -106,70 +99,67 @@ describe("updateLedgerChannel", () => {
     beforeEach(() => {
       theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
   
-      mockFunction(LedgerChannelManagement, "channelExists", returnTrue);
-      mockFunction(LedgerChannelManagement, "validTransition", returnTrue);
-      mockFunction(LedgerChannelManagement, "validSignature", returnTrue);
-      mockFunction(LedgerChannelManagement, "valuePreserved", returnTrue);
     });
   
     it("should return an allocator channel and a signed commitment", async () => {
-      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature);
+      const { allocator_channel, commitment, signature } = await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature);
       expect(allocator_channel).toMatchObject(funded_channel_response);
       expect(commitment).toMatchObject(post_fund_setup_1_response);
   
-      expect(await LedgerChannelManagement.validSignature(commitment, signature)).toBe(true);
+      expect(await LedgerChannelManager.validSignature(commitment, signature)).toBe(true);
     });
   
-    it('throws when the commitment is invalid', async () => {
-      mockFunction(LedgerChannelManagement, "validSignature", returnFalse);
+    it('throws when the commitment is incorrectly signed', async () => {
       expect.assertions(1);
-      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch((err: Error) => {
+      theirSignature = sign(toHex(post_fund_setup_0), "0xf00");
+      await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch((err: Error) => {
         expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
       });
     });
   
     it('throws when the transition is invalid', async () => {
-      expect.assertions(2);
-      mockFunction(LedgerChannelManagement, "validTransition", returnFalse);
+      expect.assertions(1);
+      post_fund_setup_0.turnNum = 0;
   
-      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
+      await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.INVALID_TRANSITION);
       });
+    });
+
+    it('throws when the channel doesn\'t exist', async () => {
+      expect.assertions(1);
+
+      post_fund_setup_0.channel = { ...post_fund_setup_0.channel, nonce: 999 }
   
-      expect(LedgerChannelManagement.validTransition).toHaveBeenCalledWith(post_fund_setup_0);
+      await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
+        expect(err).toMatchObject(errors.CHANNEL_MISSING);
+      });
     });
   
-    it('throws when the update is not value preserving', async () => {
-      mockFunction(LedgerChannelManagement, "valuePreserved", returnFalse);
-  
+    it.skip('throws when the update is not value preserving', async () => {
       expect.assertions(1);
   
-      await LedgerChannelManagement.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
+      await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.VALUE_LOST);
       });
     });
 
     it.skip('throws when the app is not funded', async () => {
-      expect(0).toBe(1);
+      expect.assertions(1)
     });
   });
 
   describe('transitioning to an app commitment', () => {
     beforeEach(() => {
       theirSignature = sign(toHex(app_0), PARTICIPANT_PRIVATE_KEY);
-  
-      mockFunction(LedgerChannelManagement, "channelExists", returnTrue);
-      mockFunction(LedgerChannelManagement, "validTransition", returnTrue);
-      mockFunction(LedgerChannelManagement, "validSignature", returnTrue);
-      mockFunction(LedgerChannelManagement, "valuePreserved", returnTrue);
     });
 
     it("should return an allocator channel and a signed commitment", async () => {
-      const { allocator_channel, commitment, signature } = await LedgerChannelManagement.updateLedgerChannel(app_0, theirSignature);
-      expect(allocator_channel).toMatchObject(funded_channel_response);
+      const { allocator_channel, commitment, signature } = await LedgerChannelManager.updateLedgerChannel(app_0, theirSignature);
+      expect(allocator_channel).toMatchObject(beginning_app_phase_channel);
       expect(commitment).toMatchObject(app_1_response);
   
-      expect(await LedgerChannelManagement.validSignature(commitment, signature)).toBe(true);
+      expect(await LedgerChannelManager.validSignature(commitment, signature)).toBe(true);
     });
   });
 
@@ -191,18 +181,18 @@ describe('validSignature', () => {
     theirSignature = sign(toHex(pre_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
     hubSignature = sign(toHex(pre_fund_setup_1), HUB_PRIVATE_KEY);
 
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_0, theirSignature)).toBe(true);
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_1, hubSignature)).toBe(true);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_0, theirSignature)).toBe(true);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_1, hubSignature)).toBe(true);
   });
 
   it('returns false when another participant signed the commitment', async () => {
     theirSignature = sign(toHex(pre_fund_setup_1), PARTICIPANT_PRIVATE_KEY);
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_1, theirSignature)).toBe(false);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_1, theirSignature)).toBe(false);
   });
 
   it('returns false when an unrelated participant signed the commitment', async () => {
     theirSignature = sign(toHex(pre_fund_setup_0), OTHER_PRIVATE_KEY);
-    expect(await LedgerChannelManagement.validSignature(pre_fund_setup_0, theirSignature)).toBe(false);
+    expect(await LedgerChannelManager.validSignature(pre_fund_setup_0, theirSignature)).toBe(false);
   });
 });
 
@@ -214,20 +204,20 @@ describe.skip('valuePreserved', () => {
 
 describe('channelExists', () => {
   it('returns true when a channel exists with the given (nonce, rules_address)', async () => {
-    expect(await LedgerChannelManagement.channelExists(post_fund_setup_0)).toBe(true);
+    expect(await LedgerChannelManager.channelExists(post_fund_setup_0)).toBe(true);
   });
 
   it('returns false when a channel exists with the given rules_address, but a different nonce', async () => {
     const commitment = post_fund_setup_0;
-    expect(await LedgerChannelManagement.channelExists(commitment)).toBe(true);
+    expect(await LedgerChannelManager.channelExists(commitment)).toBe(true);
     commitment.channel.nonce = 314;
-    expect(await LedgerChannelManagement.channelExists(commitment)).toBe(false);
+    expect(await LedgerChannelManager.channelExists(commitment)).toBe(false);
   });
 
   it('returns false when a channel exists with a different rules_address', async () => {
     const commitment = post_fund_setup_0;
     commitment.channel.channelType = HUB_ADDRESS;
-    expect(await LedgerChannelManagement.channelExists(commitment)).toBe(false);
+    expect(await LedgerChannelManager.channelExists(commitment)).toBe(false);
   });
 });
 
@@ -239,15 +229,15 @@ describe.skip('channelFunded', () => {
 
 describe('nextCommitment', () => {
   it('works on preFundSetup commitments', () => {
-    expect(LedgerChannelManagement.nextCommitment(pre_fund_setup_0)).toMatchObject(pre_fund_setup_1);
+    expect(LedgerChannelManager.nextCommitment(pre_fund_setup_0)).toMatchObject(pre_fund_setup_1);
   });
 
   it('works on postFundSetup commitments', () => {
-    expect(LedgerChannelManagement.nextCommitment(post_fund_setup_0)).toMatchObject(post_fund_setup_1);
+    expect(LedgerChannelManager.nextCommitment(post_fund_setup_0)).toMatchObject(post_fund_setup_1);
   });
 
   it('works on app commitments', () => {
-    expect(LedgerChannelManagement.nextCommitment(app_0)).toMatchObject(app_1);
+    expect(LedgerChannelManager.nextCommitment(app_0)).toMatchObject(app_1);
   });
 
   it.skip('works on conclude commitments', () => {
