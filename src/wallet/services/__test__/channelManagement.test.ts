@@ -1,9 +1,7 @@
-import { constructors as testDataConstructors, pre_fund_setup_1_response, created_channel_response, post_fund_setup_1_response, funded_channel_response, funded_channel, app_1_response, beginning_app_phase_channel, ongoing_app_phase_channel } from "../../../../test/test_data";
-import * as LedgerChannelManager from "../ledgerChannelManager";
+import { constructors as testDataConstructors, beginning_app_phase_channel } from "../../../../test/test_data";
 import * as ChannelManagement from "../channelManagement";
 import { toHex, sign, Commitment, Signature } from "fmg-core";
-import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANTS } from "../../../constants";
-import errors from "../../errors";
+import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS, } from "../../../constants";
 
 process.env.NODE_ENV = 'test';
 
