@@ -3,7 +3,7 @@ import { queries } from "../db/queries/allocator_channels";
 import { bytesFromAppAttributes, appAttributesFromBytes,  } from 'fmg-nitro-adjudicator';
 import AllocatorChannel from "../models/allocatorChannel";
 import { ChannelResponse } from ".";
-import errors from "../../errors";
+import errors from "../errors";
 import AllocatorChannelCommitment from "../models/allocatorChannelCommitment";
 import { channelExists, validSignature, formResponse } from "./channelManagement";
 

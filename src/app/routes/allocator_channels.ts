@@ -53,22 +53,4 @@ router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
       }
 });
 
-router.get(`${BASE_URL}/:id`, async (ctx) => {
-    try {
-        const allocatorChannel = await wallet.getSingleAllocatorChannel(ctx.params.id);
-        if (allocatorChannel) {
-            ctx.body = { allocatorChannel };
-        } else {
-            ctx.status = 404;
-            ctx.set('Content-Type', 'application/json');
-            ctx.body = {
-                status: 'error',
-                message: 'That channel does not exist.',
-            };
-        }
-    } catch (err) {
-        console.log(err);
-    }
-});
-
 export const allocatorChannelRoutes = router.routes();
