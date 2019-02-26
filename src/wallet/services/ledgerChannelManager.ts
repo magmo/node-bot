@@ -1,11 +1,11 @@
-import { Commitment, Signature, CommitmentType } from "fmg-core";
-import { queries } from "../db/queries/allocator_channels";
-import { bytesFromAppAttributes, appAttributesFromBytes,  } from 'fmg-nitro-adjudicator';
-import AllocatorChannel from "../models/allocatorChannel";
+import { Commitment, CommitmentType, Signature } from "fmg-core";
+import { appAttributesFromBytes, bytesFromAppAttributes,  } from 'fmg-nitro-adjudicator';
 import { ChannelResponse } from ".";
+import { queries } from "../db/queries/allocator_channels";
 import errors from "../errors";
+import AllocatorChannel from "../models/allocatorChannel";
 import AllocatorChannelCommitment from "../models/allocatorChannelCommitment";
-import { channelExists, validSignature, formResponse } from "./channelManagement";
+import { channelExists, formResponse, validSignature } from "./channelManagement";
 
 export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
     if (await channelExists(theirCommitment)) {

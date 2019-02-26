@@ -1,6 +1,6 @@
+import { Address, Bytes, Commitment, CommitmentType, toHex, Uint256, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
 import AllocatorChannel from './allocatorChannel';
-import { CommitmentType, Commitment, Uint256, Address, Uint32, Bytes, toHex } from 'fmg-core';
 
 import Allocation from './allocation';
 

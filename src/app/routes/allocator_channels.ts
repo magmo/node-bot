@@ -1,5 +1,5 @@
-import * as Router from 'koa-router';
 import * as koaBody from 'koa-body';
+import * as Router from 'koa-router';
 
 import * as wallet from "../../wallet";
 export const BASE_URL = `/api/v1/allocator_channels`;

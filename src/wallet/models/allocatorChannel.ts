@@ -1,7 +1,7 @@
+import { Address, Channel, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
-import ConsensusCommitment from './allocatorChannelCommitment';
-import { Channel, Uint32, Address } from 'fmg-core';
 import AllocatorChannelParticipant from './allocator_channel_participant';
+import ConsensusCommitment from './allocatorChannelCommitment';
 
 export default class AllocatorChannel extends Model {
 

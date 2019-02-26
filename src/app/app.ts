@@ -2,8 +2,8 @@ import * as Koa from 'koa';
 
 // import { config } from './config';
 import { logger } from './logging';
-import { indexRoutes } from './routes/index';
 import { allocatorChannelRoutes } from './routes/allocator_channels';
+import { indexRoutes } from './routes/index';
 
 const app = new Koa();
 

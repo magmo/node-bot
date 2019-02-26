@@ -1,9 +1,9 @@
-import { mover, toHex, Commitment, sign, recover, Address, Signature, CommitmentType } from "fmg-core";
-import ConsensusCommitment from "../models/allocatorChannelCommitment";
+import { Address, Commitment, CommitmentType, mover, recover, sign, Signature, toHex } from "fmg-core";
+import { ChannelResponse } from ".";
 import { HUB_PRIVATE_KEY } from "../../constants";
 import Allocation from "../models/allocation";
 import AllocatorChannel from "../models/allocatorChannel";
-import { ChannelResponse } from ".";
+import ConsensusCommitment from "../models/allocatorChannelCommitment";
 
 export function validSignature(commitment: Commitment,  signature: Signature): boolean {
   return recover(toHex(commitment), signature) === mover(commitment);

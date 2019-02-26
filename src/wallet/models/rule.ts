@@ -1,5 +1,5 @@
-import { Model } from 'objection';
 import { Address } from 'fmg-core';
+import { Model } from 'objection';
 import AllocatorChannel from './allocatorChannel';
 
 export default class Rule extends Model {

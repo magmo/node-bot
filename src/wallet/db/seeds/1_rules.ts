@@ -1,7 +1,7 @@
-import { DUMMY_RULES_ADDRESS } from "../../../constants";
 import { Model } from "objection";
-import knex from "../connection";
+import { DUMMY_RULES_ADDRESS } from "../../../constants";
 import Rule from "../../models/rule";
+import knex from "../connection";
 Model.knex(knex);
 
 export async function seed() {

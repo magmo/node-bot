@@ -1,4 +1,4 @@
-import { Address, Bytes32, Uint8, Uint32, Bytes, } from "fmg-core";
+import { Address, Bytes, Bytes32, Uint32, Uint8, } from "fmg-core";
 
 export type CommitmentString = string;
 

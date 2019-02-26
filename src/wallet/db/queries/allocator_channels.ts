@@ -1,9 +1,9 @@
 import {
-  MessageSignature,
   Address,
-  CommitmentType,
-  Uint32,
   Commitment,
+  CommitmentType,
+  MessageSignature,
+  Uint32,
 } from "fmg-core";
 import { CommitmentString } from "../../../types";
 import AllocatorChannel from "../../models/allocatorChannel";

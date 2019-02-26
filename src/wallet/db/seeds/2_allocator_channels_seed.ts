@@ -1,9 +1,9 @@
-import { DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, FUNDED_CHANNEL_HOLDINGS, HUB_ADDRESS, PARTICIPANT_ADDRESS, DESTINATION, ALLOCATION, BEGINNING_APP_CHANNEL_NONCE, BEGINNING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, ONGOING_APP_CHANNEL_HOLDINGS } from "../../../constants";
-import AllocatorChannel from "../../models/allocatorChannel";
-import { Model } from "objection";
-import knex from "../connection";
 import { CommitmentType } from "fmg-core";
 import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
+import { Model } from "objection";
+import { ALLOCATION, BEGINNING_APP_CHANNEL_HOLDINGS, BEGINNING_APP_CHANNEL_NONCE, DESTINATION, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_HOLDINGS, FUNDED_CHANNEL_NONCE, HUB_ADDRESS, ONGOING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, PARTICIPANT_ADDRESS } from "../../../constants";
+import AllocatorChannel from "../../models/allocatorChannel";
+import knex from "../connection";
 Model.knex(knex);
 
 const participants = [{ address: PARTICIPANT_ADDRESS, priority: 0}, { address: HUB_ADDRESS, priority: 1 }];

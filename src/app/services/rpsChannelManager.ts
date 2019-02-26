@@ -1,9 +1,9 @@
-import { Commitment, Signature, CommitmentType } from "fmg-core";
+import { Commitment, CommitmentType, Signature } from "fmg-core";
+import { ChannelManagement, ChannelResponse, errors } from "../../wallet";
 import AllocatorChannel from "../../wallet/models/allocatorChannel";
-import { ChannelResponse, ChannelManagement, errors } from "../../wallet";
 
-import AllocatorChannelCommitment from "../../wallet/models/allocatorChannelCommitment";
 import { queries } from "../../wallet/";
+import AllocatorChannelCommitment from "../../wallet/models/allocatorChannelCommitment";
 
 export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
     if (await ChannelManagement.channelExists(theirCommitment)) {
@@ -58,7 +58,7 @@ export function nextCommitment(theirCommitment: Commitment): Commitment {
       };
 
     case CommitmentType.App:
-      throw new Error("Not implemented")
+      throw new Error("Not implemented");
     case CommitmentType.Conclude:
       return {
         ...theirCommitment,

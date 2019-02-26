@@ -1,9 +1,9 @@
 import * as CommitmentArtifact from '../../../build/contracts/Commitment.json';
-import * as RulesArtifact from '../../../build/contracts/Rules.json';
 import * as nitroAdjudicatorArtifact from '../../../build/contracts/NitroAdjudicator.json';
+import * as RulesArtifact from '../../../build/contracts/Rules.json';
 
-import { getNetworkId, linkedByteCode, } from "magmo-devtools";
 import { ContractFactory, providers } from "ethers";
+import { getNetworkId, linkedByteCode, } from "magmo-devtools";
 
 // TODO: This provider is obviously a local provider.
 // We should set the provider to connect to ganache or infura, 
