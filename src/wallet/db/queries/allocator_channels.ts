@@ -5,7 +5,7 @@ import {
   Uint32,
   Commitment,
 } from "fmg-core";
-import { appAttributesFromBytes, bytesFromAppAttributes } from "fmg-nitro-adjudicator";
+import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
 import knex from "../connection";
 import { CommitmentString } from "../../../types";
 import AllocatorChannel from "../../models/allocatorChannel";
