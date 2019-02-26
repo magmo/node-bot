@@ -2,19 +2,9 @@ import * as Router from 'koa-router';
 import * as koaBody from 'koa-body';
 
 import * as wallet from "../../wallet";
-import errors from '../../wallet/errors';
 export const BASE_URL = `/api/v1/allocator_channels`;
 
 const router = new Router();
-
-router.get(BASE_URL, async (ctx) => {
-    try {
-        const allocatorChannels = await wallet.getAllAllocatorChannels();
-        ctx.body = { allocatorChannels };
-    } catch (err) {
-        console.log(err);
-    }
-});
 
 router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
     try {
@@ -22,10 +12,10 @@ router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
         const { commitment: theirCommitment, signature: theirSignature } = ctx.request.body;
 
         if (await wallet.channelExists(theirCommitment)) {
-          const { allocator_channel, commitment, signature } = await wallet.updateAllocatorChannel(theirCommitment, theirSignature);
+          const { allocator_channel, commitment, signature } = await wallet.updateLedgerChannel(theirCommitment, theirSignature);
           body = { status: 'success', allocator_channel, commitment, signature };
         } else {
-          const { allocator_channel, commitment, signature } = await wallet.openAllocatorChannel(theirCommitment, theirSignature);
+          const { allocator_channel, commitment, signature } = await wallet.openLedgerChannel(theirCommitment, theirSignature);
           body = { status: 'success', allocator_channel, commitment, signature };
         }
         if (body.allocator_channel.id) {
@@ -40,7 +30,7 @@ router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
         }
       } catch (err) {
         switch(err) {
-          case errors.CHANNEL_EXISTS: {
+          case wallet.errors.CHANNEL_EXISTS: {
             ctx.status = 400;
             ctx.body = {
               status: 'error',
@@ -49,11 +39,11 @@ router.post(`${BASE_URL}`, koaBody(), async (ctx) => {
 
             return;
           }
-          case errors.COMMITMENT_NOT_SIGNED: {
+          case wallet.errors.COMMITMENT_NOT_SIGNED: {
             ctx.status = 400;
             ctx.body = {
               status: 'error',
-              message: errors.COMMITMENT_NOT_SIGNED.message,
+              message: wallet.errors.COMMITMENT_NOT_SIGNED.message,
             };
 
             return;
