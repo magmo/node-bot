@@ -7,26 +7,6 @@ import AllocatorChannel from "../../../models/allocatorChannel";
 
 process.env.NODE_ENV = 'test';
 
-// Maybe we don't need this
-describe.skip("getAllAllocatorChannels", async () => {
-  it.skip("should return all allocator channels", async () => {
-    const result = await queries.getAllAllocatorChannels();
-    expect(result.length).toEqual(Object.keys(seeds).length);
-    expect(result[0]).toMatchObject(seeds.channel_1);
-    expect(result[1]).toMatchObject(seeds.channel_2);
-    // TODO: Make this pass.
-    // The issue is that the records are not eagerly fetched
-    expect(result[2]).toMatchObject(seeds.funded_channel);
-  });
-});
-
-// Maybe we don't need this
-describe.skip('getSingleAllocatorChannel', () => {
-  it('works', async () => {
-    expect(await queries.getSingleAllocatorChannel(1)).toMatchObject(seeds.channel_1);
-  });
-});
-
 describe('openAllocatorChannel', () => {
   it('works', async () => {
     const allocator_channel = await queries.openAllocatorChannel(testDataConstructors.pre_fund_setup(0));

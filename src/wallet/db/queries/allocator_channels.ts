@@ -5,8 +5,6 @@ import {
   Uint32,
   Commitment,
 } from "fmg-core";
-import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
-import knex from "../connection";
 import { CommitmentString } from "../../../types";
 import AllocatorChannel from "../../models/allocatorChannel";
 
@@ -20,19 +18,7 @@ export interface IAllocatorChannel {
   nonce_id: number;
 }
 
-function getAllAllocatorChannels() {
-  return knex('allocator_channels').select("*");
-}
-
-function getSingleAllocatorChannel(id: number) {
-  return knex('allocator_channels')
-    .where({id})
-    .first();
-}
-
 export const queries = {
-  getAllAllocatorChannels,
-  getSingleAllocatorChannel,
   openAllocatorChannel,
   updateAllocatorChannel,
 };
@@ -48,11 +34,6 @@ async function openAllocatorChannel(theirCommitment: Commitment) {
   });
 
   const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
-  const app_attrs = (n: number) => bytesFromAppAttributes({
-    consensusCounter: n,
-    proposedAllocation: allocations().map(a => a.amount),
-    proposedDestination: allocations().map(a => a.destination),
-  });
 
   const commitment = (turn_number: Uint32) => ({
     turn_number,
