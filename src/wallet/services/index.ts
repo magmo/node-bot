@@ -1,5 +1,5 @@
 import { Commitment, Uint32, Channel, Signature, Address, Uint256 } from "fmg-core";
-import LedgerChannelManager from "./ledgerChannelManagement";
+import * as LedgerChannelManager from "./ledgerChannelManager";
 import { Blockchain } from "./blockchain";
 
 export interface IAllocatorChannel extends Channel {
