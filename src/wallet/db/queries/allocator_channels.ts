@@ -59,7 +59,7 @@ async function openAllocatorChannel(theirCommitment: Commitment) {
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
     allocations: allocations(),
-    app_attrs: app_attrs(0),
+    app_attrs: theirCommitment.appAttributes,
   });
 
   const commitments = [commitment(0), commitment(1)];
