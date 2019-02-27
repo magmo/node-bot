@@ -2280,10 +2280,10 @@ flagged-respawn@^0.3.2:
   resolved "https://registry.yarnpkg.com/flagged-respawn/-/flagged-respawn-0.3.2.tgz#ff191eddcd7088a675b2610fffc976be9b8074b5"
   integrity sha1-/xke3c1wiKZ1smEP/8l2vpuAdLU=
 
-fmg-core@^0.5.0:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/fmg-core/-/fmg-core-0.5.1.tgz#dca46daa6308aa48a914769a90264b69a05a95a9"
-  integrity sha512-2h6IA6MwXeYJIHVON2civ9hutVRzJyYMz4nHCgoBHrRS1Cp34ympJ/4VtFAg0P8j0j1t204P21ZtCwZtk7z52w==
+fmg-core@^0.5.5:
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/fmg-core/-/fmg-core-0.5.5.tgz#368f5d5675c7fb1ab0346593ba6116b63f68bbaf"
+  integrity sha512-Dlgx370gz+/P7E8E1cyabAJUA4dciTZ7UQqzhe+0xMJd+K6iv0kQBPXaoMYeW9RZKUbpxYJeamFrzRroQYnjgQ==
   dependencies:
     bn.js "^4.11.8"
     ethers "^4.0.26"
@@ -2292,10 +2292,10 @@ fmg-core@^0.5.0:
     web3-utils "^1.0.0-beta.36"
     websocket "^1.0.28"
 
-fmg-nitro-adjudicator@^0.0.1:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/fmg-nitro-adjudicator/-/fmg-nitro-adjudicator-0.0.4.tgz#95219248dbc1e1937d3943ae1ef32033f716a812"
-  integrity sha512-KC6ib5sTe2Vlf0SfdBb5uGbSyfuaIiewph+q8QmBDisDMoV1tyDRqXlDTjvd608GKVYhOwA0gAjppOjX7pRA1w==
+fmg-nitro-adjudicator@^0.0.7:
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/fmg-nitro-adjudicator/-/fmg-nitro-adjudicator-0.0.7.tgz#82be56640712277376bb6d2a51cf55e1b83dcddc"
+  integrity sha512-QCaZXiT5XTzQ08hbloeqQucPjxtgmC9hK95f1tslYbc+FEThR/DyW4QSJRc+u9/lYfwyxQc1DtN+IPYUzzg1ZA==
 
 for-each@^0.3.3:
   version "0.3.3"

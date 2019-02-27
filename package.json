@@ -16,8 +16,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "fmg-core": "^0.5.3",
-    "fmg-nitro-adjudicator": "^0.0.6",
+    "fmg-core": "^0.5.5",
+    "fmg-nitro-adjudicator": "^0.0.7",
     "knex": "^0.13.0",
     "koa": "^2.7.0",
     "koa-body": "^4.0.8",
