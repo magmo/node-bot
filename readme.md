@@ -2,6 +2,9 @@
 ### postgresql
 The simplest way to get this going on a mac is to install the [postgres app](https://postgresapp.com)
 
+### .env
+Copy `.env.example` to `.env`, and make it your own.
+
 ## Setup
 
 ```
