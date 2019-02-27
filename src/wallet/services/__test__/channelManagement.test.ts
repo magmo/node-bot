@@ -1,5 +1,6 @@
 import { Commitment, sign, Signature, toHex } from "fmg-core";
-import { constructors as testDataConstructors, } from "../../../../test/test_data";
+import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
+import { constructors as testDataConstructors, funded_channel, } from "../../../../test/test_data";
 import { HUB_ADDRESS, HUB_PRIVATE_KEY, OTHER_PRIVATE_KEY, PARTICIPANT_PRIVATE_KEY, } from "../../../constants";
 import { seeds } from "../../db/seeds/2_allocator_channels_seed";
 import AllocatorChannel from "../../models/allocatorChannel";
@@ -19,7 +20,6 @@ beforeEach(() => {
 
   post_fund_setup_0 = testDataConstructors.post_fund_setup(2);
 });
-
 
 describe("validateCommitment", () => {
   it("returns true when the commitment was signed by the mover", async () => {
@@ -90,10 +90,11 @@ describe('formResponse', () => {
     .where({ rules_address, nonce })
     .eager('commitments')
     .first();
+    pre_fund_setup_1.channel = funded_channel;
 
     const signature = sign(toHex(pre_fund_setup_1), HUB_PRIVATE_KEY);
 
-    expect(await ChannelManagement.formResponse(channel.id)).toMatchObject({
+    expect(await ChannelManagement.formResponse(channel.id, bytesFromAppAttributes)).toMatchObject({
       commitment: pre_fund_setup_1,
       signature,
     });

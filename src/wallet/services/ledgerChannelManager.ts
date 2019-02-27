@@ -1,13 +1,14 @@
 import { Commitment, CommitmentType, Signature } from "fmg-core";
 import { appAttributesFromBytes, bytesFromAppAttributes,  } from 'fmg-nitro-adjudicator';
 import { ChannelResponse } from ".";
+import { AppAttrExtractor } from "../../types";
 import { queries } from "../db/queries/allocator_channels";
 import errors from "../errors";
 import AllocatorChannel from "../models/allocatorChannel";
 import AllocatorChannelCommitment from "../models/allocatorChannelCommitment";
 import { channelExists, formResponse, validSignature } from "./channelManagement";
 
-export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
+export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature, extractAppAttrs: AppAttrExtractor): Promise<ChannelResponse> {
     if (await channelExists(theirCommitment)) {
       throw errors.CHANNEL_EXISTS;
     }
@@ -16,11 +17,12 @@ export async function openLedgerChannel(theirCommitment: Commitment, theirSignat
       throw errors.COMMITMENT_NOT_SIGNED;
     }
 
-    const allocator_channel = await queries.openAllocatorChannel(theirCommitment);
-    return formResponse(allocator_channel);
+    const allocator_channel = await queries.openAllocatorChannel(theirCommitment, extractAppAttrs);
+    return formResponse(allocator_channel.id, bytesFromAppAttributes);
 }
 
-export async function updateLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
+export async function updateLedgerChannel(theirCommitment: Commitment, theirSignature: Signature, extractAppAttrs: AppAttrExtractor
+  ): Promise<ChannelResponse> {
     if (!validSignature(theirCommitment, theirSignature)) {
         throw errors.COMMITMENT_NOT_SIGNED;
     }
@@ -39,8 +41,8 @@ export async function updateLedgerChannel(theirCommitment: Commitment, theirSign
 
     const ourCommitment = nextCommitment(theirCommitment);
 
-    const allocator_channel = await queries.updateAllocatorChannel(theirCommitment, ourCommitment);
-    return formResponse(allocator_channel);
+    const allocator_channel = await queries.updateAllocatorChannel(theirCommitment, ourCommitment, extractAppAttrs);
+    return formResponse(allocator_channel.id, bytesFromAppAttributes);
 }
 
 export function nextCommitment(theirCommitment: Commitment): Commitment {

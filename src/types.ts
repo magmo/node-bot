@@ -14,4 +14,10 @@ export interface UpdateChannelParams {
     signature: Signature;
 }
 
+export type AppAttrExtractor = (attrs: Bytes) => {[x: string]: any};
+export type AppAttrSanitizer = (attrs: GenericAppAttributes) => Bytes;
+export interface GenericAppAttributes {
+    [x: string]: any;
+}
+
 export { Address, Bytes32, Bytes, Uint8, Uint32 };

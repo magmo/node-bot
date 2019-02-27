@@ -29,7 +29,7 @@ const allocationByPriority = (priority: number) => ({
 });
 
 const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
-const app_attrs = (n: number) => bytesFromAppAttributes({
+const app_attrs = (n: number) => ({
   consensusCounter: n,
   proposedAllocation: ALLOCATION,
   proposedDestination: DESTINATION,

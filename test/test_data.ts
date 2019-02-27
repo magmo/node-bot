@@ -39,8 +39,6 @@ const base = {
 };
 
 const base_response = {
-  id: expect.any(Number),
-  allocator_channel_id: expect.any(Number),
   channel: {
     nonce: expect.any(Number),
     channelType: DUMMY_RULES_ADDRESS,
@@ -53,7 +51,7 @@ const base_response = {
 function pre_fund_setup(turnNum: number): Commitment {
   return {
     ...base,
-    channel: { ...funded_channel },
+    channel: { ...default_channel },
     turnNum,
     appAttributes: app_attrs(0),
     commitmentCount: turnNum,
@@ -64,7 +62,7 @@ function pre_fund_setup(turnNum: number): Commitment {
 function post_fund_setup(turnNum: number): Commitment {
   return {
     ...base,
-    channel: { ...beginning_app_phase_channel },
+    channel: { ...funded_channel },
     turnNum,
     appAttributes: app_attrs(0),
     commitmentCount: turnNum % funded_channel.participants.length,
@@ -89,7 +87,7 @@ export const constructors = {
   app,
 };
 
-export const pre_fund_setup_1_response: IAllocatorChannelCommitment = {
+export const pre_fund_setup_1_response: Commitment = {
   ...base_response,
   turnNum: 1,
   appAttributes: app_attrs(0),
@@ -97,7 +95,7 @@ export const pre_fund_setup_1_response: IAllocatorChannelCommitment = {
   commitmentType: CommitmentType.PreFundSetup,
 };
 
-export const post_fund_setup_1_response: IAllocatorChannelCommitment = {
+export const post_fund_setup_1_response: Commitment = {
   ...base_response,
   turnNum: 3,
   appAttributes: app_attrs(0),
@@ -106,7 +104,7 @@ export const post_fund_setup_1_response: IAllocatorChannelCommitment = {
   commitmentType: CommitmentType.PostFundSetup,
 };
 
-export const app_1_response: IAllocatorChannelCommitment = {
+export const app_1_response: Commitment = {
   ...base_response,
   turnNum: 5,
   appAttributes: app_attrs(1),

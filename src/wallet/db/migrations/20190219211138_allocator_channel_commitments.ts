@@ -1,5 +1,4 @@
 import * as Knex from "knex";
-import { addBytesCheck } from "../utils";
 const TABLE_NAME = 'allocator_channel_commitments';
 
 exports.up = async (knex: Knex) => {
@@ -10,12 +9,10 @@ exports.up = async (knex: Knex) => {
         table.integer('turn_number').unsigned().notNullable();
         table.integer('commitment_type').unsigned().notNullable();
         table.integer('commitment_count').unsigned().notNullable();
-        table.text('app_attrs').notNullable();
+        table.json('app_attrs').notNullable();
 
         table.unique(["allocator_channel_id", "turn_number"]);
       });
-
-      await addBytesCheck(knex, TABLE_NAME, "app_attrs");
 };
 
 exports.down = (knex: Knex) => knex.schema.dropTable(TABLE_NAME);

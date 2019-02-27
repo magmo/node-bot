@@ -23,7 +23,7 @@ export const queries = {
   updateAllocatorChannel,
 };
 
-async function openAllocatorChannel(theirCommitment: Commitment) {
+async function openAllocatorChannel(theirCommitment: Commitment, extractAppAttrs: (Bytes) => any) {
   const { channel, allocation, destination, } = theirCommitment;
   const { participants, channelType: rules_address, nonce } = channel;
 
@@ -40,7 +40,7 @@ async function openAllocatorChannel(theirCommitment: Commitment) {
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
     allocations: allocations(),
-    app_attrs: theirCommitment.appAttributes,
+    app_attrs: extractAppAttrs(theirCommitment.appAttributes),
   });
 
   const commitments = [commitment(0), commitment(1)];
@@ -57,7 +57,7 @@ async function openAllocatorChannel(theirCommitment: Commitment) {
   });
 }
 
-async function updateAllocatorChannel(theirCommitment: Commitment, hubCommitment: Commitment) {
+async function updateAllocatorChannel(theirCommitment: Commitment, hubCommitment: Commitment, extractAppAttrs: (Bytes) => any) {
   const { channel, } = theirCommitment;
   const { channelType, nonce, } = channel;
 
@@ -83,7 +83,7 @@ async function updateAllocatorChannel(theirCommitment: Commitment, hubCommitment
     commitment_type: c.commitmentType,
     commitment_count: c.commitmentCount,
     allocations: allocations(c),
-    app_attrs: c.appAttributes,
+    app_attrs: extractAppAttrs(c.appAttributes),
   });
 
   const commitments = [commitment(theirCommitment), commitment(hubCommitment)];

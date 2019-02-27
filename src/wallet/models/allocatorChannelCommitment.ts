@@ -1,26 +1,10 @@
 import { Address, Bytes, Commitment, CommitmentType, toHex, Uint256, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
+import { AppAttrSanitizer, GenericAppAttributes } from '../../types';
 import Allocation from './allocation';
 import AllocatorChannel from './allocatorChannel';
 
 export default class AllocatorChannelCommitment extends Model {
-
-  get toHex(): Bytes {
-    return toHex(this.asCoreCommitment);
-  }
-
-  get asCoreCommitment(): Commitment {
-    return {
-      commitmentType: this.commitment_type,
-      commitmentCount: this.commitment_count,
-      turnNum: this.turn_number,
-      channel: this.allocator_channel.asCoreChannel,
-      allocation: this.allocations.sort(priority).map(amount),
-      destination: this.allocations.sort(priority).map(destination),
-      appAttributes: this.app_attrs,
-    };
-  }
-
   static tableName = 'allocator_channel_commitments';
 
   static relationMappings = {
@@ -48,7 +32,23 @@ export default class AllocatorChannelCommitment extends Model {
   commitment_type!: CommitmentType;
   commitment_count!: Uint32;
   allocations!: Allocation[];
-  app_attrs!: Bytes;
+  app_attrs!: GenericAppAttributes;
+
+  toHex(sanitize: AppAttrSanitizer): Bytes {
+    return toHex(this.asCoreCommitment(sanitize));
+  }
+
+  asCoreCommitment(sanitize: AppAttrSanitizer): Commitment {
+    return {
+      commitmentType: this.commitment_type,
+      commitmentCount: this.commitment_count,
+      turnNum: this.turn_number,
+      channel: this.allocator_channel.asCoreChannel,
+      allocation: this.allocations.sort(priority).map(amount),
+      destination: this.allocations.sort(priority).map(destination),
+      appAttributes: sanitize(this.app_attrs),
+    };
+  }
 }
 
 const priority = (allocation: Allocation): Uint32 => allocation.priority;
