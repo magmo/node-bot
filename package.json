@@ -16,8 +16,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "fmg-core": "../minimal_viable_force_move_games/packages/fmg-core",
-    "fmg-nitro-adjudicator": "../minimal_viable_force_move_games/packages/fmg-nitro-adjudicator",
+    "fmg-core": "^0.5.3",
+    "fmg-nitro-adjudicator": "^0.0.6",
     "knex": "^0.13.0",
     "koa": "^2.7.0",
     "koa-body": "^4.0.8",
