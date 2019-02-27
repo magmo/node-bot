@@ -1,8 +1,7 @@
 import { Address, Bytes, Commitment, CommitmentType, toHex, Uint256, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
-import AllocatorChannel from './allocatorChannel';
-
 import Allocation from './allocation';
+import AllocatorChannel from './allocatorChannel';
 
 export default class AllocatorChannelCommitment extends Model {
 
