@@ -2,7 +2,7 @@ import {
   Address,
   Commitment,
   CommitmentType,
-  MessageSignature,
+  Signature,
   Uint32,
 } from "fmg-core";
 import { CommitmentString } from "../../../types";
@@ -10,7 +10,7 @@ import AllocatorChannel from "../../models/allocatorChannel";
 
 export interface CreateAllocatorChannelParams {
   commitment: CommitmentString;
-  signature: MessageSignature;
+  signature: Signature;
 }
 export interface IAllocatorChannel {
   channelId: Address;

@@ -1,16 +1,13 @@
-import { constructors as testDataConstructors, beginning_app_phase_channel } from "../../../../test/test_data";
+import { Commitment, sign, Signature, toHex } from "fmg-core";
+import { constructors as testDataConstructors } from "../../../../test/test_data";
+import { HUB_ADDRESS, HUB_PRIVATE_KEY, OTHER_PRIVATE_KEY, PARTICIPANT_PRIVATE_KEY, } from "../../../constants";
 import * as ChannelManagement from "../channelManagement";
-import { toHex, sign, Commitment, Signature } from "fmg-core";
-import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS, } from "../../../constants";
 
 process.env.NODE_ENV = 'test';
 
 let pre_fund_setup_0: Commitment;
 let pre_fund_setup_1: Commitment;
 let post_fund_setup_0: Commitment;
-let post_fund_setup_1: Commitment;
-let app_0: Commitment;
-let app_1: Commitment;
 let theirSignature: Signature;
 let hubSignature: Signature;
 
@@ -19,27 +16,23 @@ beforeEach(() => {
   pre_fund_setup_1 = testDataConstructors.pre_fund_setup(1);
 
   post_fund_setup_0 = testDataConstructors.post_fund_setup(2);
-  post_fund_setup_1 = testDataConstructors.post_fund_setup(3);
-
-  app_0 = testDataConstructors.app(4, beginning_app_phase_channel);
-  app_1 = testDataConstructors.app(5, beginning_app_phase_channel);
 });
 
 
 describe("validateCommitment", () => {
   it("returns true when the commitment was signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_1), HUB_PRIVATE_KEY);
-    expect(await ChannelManagement.validSignature(pre_fund_setup_1, signature)).toBe(true);
+    expect(ChannelManagement.validSignature(pre_fund_setup_1, signature)).toBe(true);
   });
 
   it("returns false when the commitment was not signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_0), HUB_PRIVATE_KEY);
-    expect(await ChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
+    expect(ChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
   });
 
   it("returns false when the commitment was not signed by the mover", async () => {
     const signature = sign(toHex(pre_fund_setup_0), "0xf00");
-    expect(await ChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
+    expect(ChannelManagement.validSignature(pre_fund_setup_0, signature)).toBe(false);
   });
 });
 

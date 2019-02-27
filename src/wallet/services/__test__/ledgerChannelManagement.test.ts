@@ -1,9 +1,9 @@
-import { constructors as testDataConstructors, pre_fund_setup_1_response, created_channel_response, post_fund_setup_1_response, funded_channel_response, funded_channel, app_1_response, beginning_app_phase_channel, ongoing_app_phase_channel } from "../../../../test/test_data";
-import * as LedgerChannelManager from "../ledgerChannelManager";
-import * as ChannelManagement from "../channelManagement";
-import { toHex, sign, Commitment, Signature } from "fmg-core";
-import { HUB_PRIVATE_KEY, UNKNOWN_RULES_ADDRESS, PARTICIPANT_PRIVATE_KEY, OTHER_PRIVATE_KEY, HUB_ADDRESS, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANTS } from "../../../constants";
+import { Commitment, sign, Signature, toHex } from "fmg-core";
+import { app_1_response, beginning_app_phase_channel, constructors as testDataConstructors, created_channel_response, funded_channel_response, post_fund_setup_1_response, pre_fund_setup_1_response } from "../../../../test/test_data";
+import { DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_NONCE, HUB_PRIVATE_KEY, PARTICIPANT_PRIVATE_KEY, PARTICIPANTS, UNKNOWN_RULES_ADDRESS } from "../../../constants";
 import errors from "../../errors";
+import * as ChannelManagement from "../channelManagement";
+import * as LedgerChannelManager from "../ledgerChannelManager";
 
 process.env.NODE_ENV = 'test';
 
@@ -31,7 +31,7 @@ beforeEach(() => {
 describe("openLedgerChannel", () => {
   beforeEach(() => {
     theirSignature = sign(toHex(pre_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
-  })
+  });
 
   it("should return an allocator channel and a signed commitment", async () => {
     const { allocator_channel, commitment, signature } = await LedgerChannelManager.openLedgerChannel(pre_fund_setup_0, theirSignature);
@@ -70,7 +70,7 @@ describe("openLedgerChannel", () => {
       channelType: DUMMY_RULES_ADDRESS,
       nonce: FUNDED_CHANNEL_NONCE,
       participants: PARTICIPANTS,
-    }
+    };
 
     await LedgerChannelManager.openLedgerChannel(pre_fund_setup_0, theirSignature).catch((err: Error) => {
       expect(err).toMatchObject(errors.CHANNEL_EXISTS);
@@ -129,7 +129,7 @@ describe("updateLedgerChannel", () => {
     });
 
     it.skip('throws when the app is not funded', async () => {
-      expect.assertions(1)
+      expect.assertions(1);
     });
   });
 
