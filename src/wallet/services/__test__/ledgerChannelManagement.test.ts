@@ -104,6 +104,7 @@ describe("updateLedgerChannel", () => {
     it('throws when the transition is invalid', async () => {
       expect.assertions(1);
       post_fund_setup_0.turnNum = 0;
+      theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
   
       await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.INVALID_TRANSITION);
@@ -113,7 +114,8 @@ describe("updateLedgerChannel", () => {
     it('throws when the channel doesn\'t exist', async () => {
       expect.assertions(1);
 
-      post_fund_setup_0.channel = { ...post_fund_setup_0.channel, nonce: 999 }
+      post_fund_setup_0.channel = { ...post_fund_setup_0.channel, nonce: 999 };
+      theirSignature = sign(toHex(post_fund_setup_0), PARTICIPANT_PRIVATE_KEY);
   
       await LedgerChannelManager.updateLedgerChannel(post_fund_setup_0, theirSignature).catch(err => {
         expect(err).toMatchObject(errors.CHANNEL_MISSING);
