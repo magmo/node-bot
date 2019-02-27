@@ -1,9 +1,10 @@
-import { Commitment, CommitmentType, Signature } from "fmg-core";
+import { Bytes32, Commitment, CommitmentType, Signature, } from "fmg-core";
 import { ChannelManagement, ChannelResponse, errors } from "../../wallet";
 import AllocatorChannel from "../../wallet/models/allocatorChannel";
 
 import { queries } from "../../wallet/";
 import AllocatorChannelCommitment from "../../wallet/models/allocatorChannelCommitment";
+import { AppAttributes, asCoreCommitment, fromCoreCommitment, Play, PositionType, RPSBaseCommitment, RPSCommitment } from "./rps-commitment";
 
 export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature): Promise<ChannelResponse> {
     if (await ChannelManagement.channelExists(theirCommitment)) {
@@ -58,7 +59,13 @@ export function nextCommitment(theirCommitment: Commitment): Commitment {
       };
 
     case CommitmentType.App:
-      throw new Error("Not implemented");
+    const ourMove = move(fromCoreCommitment(theirCommitment));
+      return {
+        ...theirCommitment,
+        turnNum: theirCommitment.turnNum + 1,
+        commitmentCount: 0,
+        appAttributes: asCoreCommitment(ourMove).appAttributes,
+      };
     case CommitmentType.Conclude:
       return {
         ...theirCommitment,
@@ -66,6 +73,32 @@ export function nextCommitment(theirCommitment: Commitment): Commitment {
         commitmentCount: theirCommitment.commitmentCount + 1,
       };
   }
+}
+
+function move(theirPosition: AppAttributes): AppAttributes {
+  switch (theirPosition.positionType) {
+    case PositionType.Resting:
+      const salt = '0xabc';
+      const aPlay;
+      return {
+        stake: theirPosition.stake,
+        positionType: PositionType.Proposed,
+        salt: '0x',
+        preCommit: preCommit(Play.Paper, salt),
+        aPlay,
+        bPlay,
+      };
+    case PositionType.Proposed:
+      return theirPosition;
+    case PositionType.Accepted:
+      return theirPosition;
+    case PositionType.Reveal:
+      return theirPosition;
+  }
+}
+
+function preCommit(play: Play, salt: Bytes32): Bytes32 {
+  return salt;
 }
 
 export async function valuePreserved(theirCommitment: any): Promise<boolean> {
