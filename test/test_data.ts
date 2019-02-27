@@ -1,6 +1,6 @@
-import { sign, Channel, Commitment, CommitmentType, toHex, } from 'fmg-core';
-import { DUMMY_RULES_ADDRESS, HUB_ADDRESS, FUNDED_CHANNEL_NONCE, PARTICIPANT_ADDRESS, PARTICIPANT_PRIVATE_KEY, FUNDED_CHANNEL_HOLDINGS,  NONCE, ALLOCATION, DESTINATION, PARTICIPANTS, BEGINNING_APP_CHANNEL_NONCE, BEGINNING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE } from "../src/constants";
+import { Channel, Commitment, CommitmentType, sign, toHex, } from 'fmg-core';
 import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
+import { ALLOCATION, BEGINNING_APP_CHANNEL_HOLDINGS, BEGINNING_APP_CHANNEL_NONCE, DESTINATION, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_HOLDINGS,  FUNDED_CHANNEL_NONCE, HUB_ADDRESS, NONCE, ONGOING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, PARTICIPANT_ADDRESS, PARTICIPANT_PRIVATE_KEY, PARTICIPANTS } from "../src/constants";
 import { IAllocatorChannelCommitment } from '../src/wallet/services';
 
 const default_channel: Channel = {
@@ -53,7 +53,7 @@ const base_response = {
 function pre_fund_setup(turnNum: number): Commitment {
   return {
     ...base,
-    channel: default_channel,
+    channel: { ...funded_channel },
     turnNum,
     appAttributes: app_attrs(0),
     commitmentCount: turnNum,
@@ -64,7 +64,7 @@ function pre_fund_setup(turnNum: number): Commitment {
 function post_fund_setup(turnNum: number): Commitment {
   return {
     ...base,
-    channel: funded_channel,
+    channel: { ...beginning_app_phase_channel },
     turnNum,
     appAttributes: app_attrs(0),
     commitmentCount: turnNum % funded_channel.participants.length,
