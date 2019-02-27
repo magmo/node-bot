@@ -23,41 +23,14 @@ export async function channelExists(theirCommitment: Commitment): Promise<boolea
   }
 }
 
-export async function formResponse(allocator_channel: any): Promise<ChannelResponse> {
-    const commitment = await ConsensusCommitment.query()
-    .eager("[allocator_channel.[participants],allocations]").findById(allocator_channel.commitments[1].id);
-    const signature = sign(commitment.toHex, HUB_PRIVATE_KEY);
+export async function formResponse(channel_id: number): Promise<ChannelResponse> {
+  const commitment = await ConsensusCommitment.query()
+  .eager("[allocator_channel.[participants],allocations]")
+  .where({allocator_channel_id: channel_id})
+  .orderBy('turn_number', 'desc')
+  .first();
 
-    const { id: allocator_channel_id, participants, nonce, rules_address, holdings } = allocator_channel;
-    const { id: commitment_id, turn_number, commitment_count, commitment_type, allocations, app_attrs } = commitment;
+  const signature = sign(commitment.toHex, HUB_PRIVATE_KEY);
 
-    return {
-      commitment: {
-        id: commitment_id,
-        allocator_channel_id,
-        turnNum: turn_number,
-        commitmentCount: commitment_count,
-        commitmentType: commitment_type,
-        allocation: allocations.map(amount),
-        destination: allocations.map(destination),
-        channel: {
-          channelType: rules_address,
-          nonce,
-          participants: participants.map(address),
-        },
-        appAttributes: app_attrs,
-      },
-      allocator_channel: {
-        id: allocator_channel_id,
-        nonce,
-        channelType: rules_address,
-        participants: participants.map(address),
-        holdings,
-      }, signature, 
-    };
+  return { commitment: commitment.asCoreCommitment, signature };
 }
-
-
-const destination = (allocation: Allocation) => allocation.destination;
-const amount = (allocation: Allocation) => allocation.amount;
-const address = (participant: { address: Address } ) => participant.address;

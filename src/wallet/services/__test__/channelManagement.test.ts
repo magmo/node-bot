@@ -1,6 +1,8 @@
 import { Commitment, sign, Signature, toHex } from "fmg-core";
-import { constructors as testDataConstructors } from "../../../../test/test_data";
+import { constructors as testDataConstructors, } from "../../../../test/test_data";
 import { HUB_ADDRESS, HUB_PRIVATE_KEY, OTHER_PRIVATE_KEY, PARTICIPANT_PRIVATE_KEY, } from "../../../constants";
+import { seeds } from "../../db/seeds/2_allocator_channels_seed";
+import AllocatorChannel from "../../models/allocatorChannel";
 import * as ChannelManagement from "../channelManagement";
 
 process.env.NODE_ENV = 'test';
@@ -78,5 +80,22 @@ describe('channelExists', () => {
 describe.skip('channelFunded', () => {
   it('works', () => {
     expect.assertions(1);
+  });
+});
+
+describe('formResponse', () => {
+  it('returns a signed core commitment', async () => {
+    const { rules_address, nonce } = seeds.funded_channel;
+    const channel = await AllocatorChannel.query()
+    .where({ rules_address, nonce })
+    .eager('commitments')
+    .first();
+
+    const signature = sign(toHex(pre_fund_setup_1), HUB_PRIVATE_KEY);
+
+    expect(await ChannelManagement.formResponse(channel.id)).toMatchObject({
+      commitment: pre_fund_setup_1,
+      signature,
+    });
   });
 });

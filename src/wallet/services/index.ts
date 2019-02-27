@@ -14,8 +14,7 @@ export interface IAllocatorChannelCommitment extends Commitment {
 }
 
 export interface ChannelResponse {
-    allocator_channel: IAllocatorChannel;
-    commitment: IAllocatorChannelCommitment;
+    commitment: Commitment;
     signature: Signature;
 }
 
