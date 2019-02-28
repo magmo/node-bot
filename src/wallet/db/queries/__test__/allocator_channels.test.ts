@@ -23,7 +23,6 @@ describe('openAllocatorChannel', () => {
   it('works', async () => {
     const allocator_channel = await queries.openAllocatorChannel(
       testDataConstructors.pre_fund_setup(0),
-      appAttributesFromBytes,
     );
     expect.assertions(5);
 
@@ -47,16 +46,14 @@ describe('openAllocatorChannel', () => {
 
   it('throws when the nonce has already been used', async () => {
     const commitment = testDataConstructors.pre_fund_setup(0);
-    await queries.openAllocatorChannel(commitment, appAttributesFromBytes);
+    await queries.openAllocatorChannel(commitment);
     expect.assertions(1);
     // TODO: Figure out how to more nicely test this ...
-    await queries
-      .openAllocatorChannel(commitment, appAttributesFromBytes)
-      .catch(err => {
-        expect(err.message).toMatch(
-          'duplicate key value violates unique constraint "allocator_channels_nonce_unique"',
-        );
-      });
+    await queries.openAllocatorChannel(commitment).catch(err => {
+      expect(err.message).toMatch(
+        'duplicate key value violates unique constraint "allocator_channels_nonce_unique"',
+      );
+    });
   });
 });
 
@@ -75,7 +72,6 @@ describe('updateAllocatorChannel', () => {
     const updated_allocator_channel = await queries.updateAllocatorChannel(
       testDataConstructors.post_fund_setup(2),
       testDataConstructors.post_fund_setup(3),
-      appAttributesFromBytes,
     );
 
     expect(updated_allocator_channel).toMatchObject({
