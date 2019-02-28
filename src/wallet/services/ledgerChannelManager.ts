@@ -63,52 +63,29 @@ export async function updateLedgerChannel(
   const allocator_channel = await queries.updateAllocatorChannel(
     theirCommitment,
     ourCommitment,
-    extractAppAttrs,
   );
-  return formResponse(allocator_channel.id, bytesFromAppAttributes);
+  return ChannelManagement.formResponse(
+    allocator_channel.id,
+    bytesFromAppAttributes,
+  );
 }
 
-export function nextCommitment(theirCommitment: Commitment): Commitment {
-  switch (theirCommitment.commitmentType) {
-    case CommitmentType.PreFundSetup:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
-
-    case CommitmentType.PostFundSetup:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
-
-    case CommitmentType.App:
-      const {
-        consensusCounter,
-        proposedAllocation,
-        proposedDestination,
-      } = appAttributesFromBytes(theirCommitment.appAttributes);
-      const appAttributes = bytesFromAppAttributes({
-        consensusCounter: consensusCounter + 1,
-        proposedAllocation,
-        proposedDestination,
-      });
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: 0,
-        appAttributes,
-      };
-
-    case CommitmentType.Conclude:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
+export function nextCommitment(
+  theirCommitment: LedgerCommitment,
+): LedgerCommitment {
+  if (theirCommitment.commitmentType !== CommitmentType.App) {
+    return ChannelManagement.nextCommitment(theirCommitment);
   }
+
+  return {
+    ...theirCommitment,
+    turnNum: theirCommitment.turnNum + 1,
+    commitmentCount: 0,
+    appAttributes: {
+      ...theirCommitment.appAttributes,
+      consensusCounter: theirCommitment.appAttributes.consensusCounter + 1,
+    },
+  };
 }
 
 export async function valuePreserved(theirCommitment: any): Promise<boolean> {
