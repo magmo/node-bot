@@ -5,8 +5,8 @@ import knex from '../connection';
 Model.knex(knex);
 
 export async function seed() {
-    // Deletes ALL existing entries
-    await knex('rules').del();
+  // Deletes ALL existing entries
+  await knex('rules').del();
 
-    await Rule.query().insert({ address: DUMMY_RULES_ADDRESS });
+  await Rule.query().insert({ address: DUMMY_RULES_ADDRESS });
 }
