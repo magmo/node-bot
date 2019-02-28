@@ -1,50 +1,52 @@
-import { Commitment, CommitmentType, Signature } from 'fmg-core';
+import { CommitmentType, Signature } from 'fmg-core';
 import {
-  appAttributesFromBytes,
+  asCoreCommitment,
   bytesFromAppAttributes,
 } from 'fmg-nitro-adjudicator';
 import { ChannelResponse } from '.';
-import { AppAttrExtractor } from '../../types';
+import { LedgerCommitment } from '../../types';
 import { queries } from '../db/queries/allocator_channels';
 import errors from '../errors';
 import AllocatorChannel from '../models/allocatorChannel';
 import AllocatorChannelCommitment from '../models/allocatorChannelCommitment';
-import {
-  channelExists,
-  formResponse,
-  validSignature,
-} from './channelManagement';
+import * as ChannelManagement from './channelManagement';
 
+// TODO: These should be extracted into a hub app?
 export async function openLedgerChannel(
-  theirCommitment: Commitment,
+  theirCommitment: LedgerCommitment,
   theirSignature: Signature,
-  extractAppAttrs: AppAttrExtractor,
 ): Promise<ChannelResponse> {
-  if (await channelExists(theirCommitment)) {
+  if (await ChannelManagement.channelExists(theirCommitment)) {
     throw errors.CHANNEL_EXISTS;
   }
 
-  if (!validSignature(theirCommitment, theirSignature)) {
+  const coreCommitment = asCoreCommitment(theirCommitment);
+
+  if (!ChannelManagement.validSignature(coreCommitment, theirSignature)) {
     throw errors.COMMITMENT_NOT_SIGNED;
   }
 
-  const allocator_channel = await queries.openAllocatorChannel(
-    theirCommitment,
-    extractAppAttrs,
+  const allocator_channel = await queries.openAllocatorChannel(theirCommitment);
+  return ChannelManagement.formResponse(
+    allocator_channel.id,
+    bytesFromAppAttributes,
   );
-  return formResponse(allocator_channel.id, bytesFromAppAttributes);
 }
 
 export async function updateLedgerChannel(
-  theirCommitment: Commitment,
+  theirCommitment: LedgerCommitment,
   theirSignature: Signature,
-  extractAppAttrs: AppAttrExtractor,
 ): Promise<ChannelResponse> {
-  if (!validSignature(theirCommitment, theirSignature)) {
+  if (
+    !ChannelManagement.validSignature(
+      asCoreCommitment(theirCommitment),
+      theirSignature,
+    )
+  ) {
     throw errors.COMMITMENT_NOT_SIGNED;
   }
 
-  if (!(await channelExists(theirCommitment))) {
+  if (!(await ChannelManagement.channelExists(theirCommitment))) {
     throw errors.CHANNEL_MISSING;
   }
 
@@ -114,7 +116,7 @@ export async function valuePreserved(theirCommitment: any): Promise<boolean> {
 }
 
 export async function validTransition(
-  theirCommitment: Commitment,
+  theirCommitment: LedgerCommitment,
 ): Promise<boolean> {
   const { channel } = theirCommitment;
   const allocator_channel_id = (await AllocatorChannel.query()
