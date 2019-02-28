@@ -26,14 +26,10 @@ beforeEach(() => {
 
 describe('nextCommitment', () => {
   it('throws on app commitments', () => {
-    expect(() => RpsChannelManager.nextCommitment(app_0)).toMatchObject(app_1);
+    expect(() => RpsChannelManager.nextCommitment(pre_fund_setup_0)).toThrowError("Must be an app commitment")
   });
 
   it('works on app commitments', () => {
     expect(RpsChannelManager.nextCommitment(app_0)).toMatchObject(app_1);
-  });
-
-  it.skip('works on conclude commitments', () => {
-    expect.assertions(1);
   });
 });

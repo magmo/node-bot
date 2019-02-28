@@ -1,4 +1,4 @@
-import { BaseCommitment, Bytes32, Uint8, Uint256, Commitment, CommitmentType } from 'fmg-core';
+import { BaseCommitment, Bytes, Bytes32, Commitment, CommitmentType, Uint256, Uint8 } from 'fmg-core';
 import abi from 'web3-eth-abi';
 
 export interface AppAttributes {
@@ -21,7 +21,7 @@ const SolidityRPSCommitmentType = {
   },
 };
 export enum PositionType { Resting, Proposed, Accepted, Reveal }
-export enum Play { Rock, Paper, Scissors }
+export enum Play { None, Rock, Paper, Scissors }
 export interface RPSBaseCommitment extends BaseCommitment {
   positionType: PositionType;
   stake: Uint256;
@@ -35,13 +35,16 @@ export interface RPSCommitment extends RPSBaseCommitment {
   commitmentType: CommitmentType;
 }
 
+export function sanitize(appAttrs: AppAttributes): Bytes {
+  return encodeAppAttributes(appAttrs);
+}
 
-function encodeAppAttributes(appAttrs: AppAttributes): string {
-  console.log(appAttrs);
+function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
   const { positionType, stake, preCommit, bPlay, aPlay, salt, } = appAttrs;
-  console.log([positionType, stake, preCommit, bPlay, aPlay, salt,]);
-  return abi.encodeParameter(SolidityRPSCommitmentType,
-    [positionType, stake, preCommit, bPlay, aPlay, salt,]);
+  return abi.encodeParameter(
+    SolidityRPSCommitmentType,
+    [positionType, stake, preCommit, bPlay, aPlay, salt]
+  );
 }
 
 function decodeAppAttributes(appAttrs: string): AppAttributes {
@@ -76,7 +79,6 @@ export function fromCoreCommitment(commitment: Commitment): RPSCommitment {
   };
 }
 
-
 export function asCoreCommitment(rpsCommitment: RPSCommitment): Commitment {
   const {
     channel,
@@ -101,5 +103,17 @@ export function asCoreCommitment(rpsCommitment: RPSCommitment): Commitment {
     destination,
     commitmentCount,
     appAttributes: encodeAppAttributes({ positionType, stake, preCommit, bPlay, aPlay, salt }),
+  };
+}
+
+const zeroBytes32: Bytes32 = "0x" + "0".repeat(64);
+export function defaultAppAttrs(roundBuyIn): AppAttributes {
+  return {
+    stake: roundBuyIn,
+    positionType: 0,
+    preCommit: zeroBytes32,
+    bPlay: Play.None,
+    aPlay: Play.None,
+    salt: zeroBytes32,
   };
 }

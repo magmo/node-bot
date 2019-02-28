@@ -1,48 +1,69 @@
-import { Commitment, CommitmentType, Signature } from "fmg-core";
-import { appAttributesFromBytes, bytesFromAppAttributes,  } from 'fmg-nitro-adjudicator';
-import { ChannelResponse } from ".";
-import { AppAttrExtractor } from "../../types";
-import { queries } from "../db/queries/allocator_channels";
-import errors from "../errors";
-import AllocatorChannel from "../models/allocatorChannel";
-import AllocatorChannelCommitment from "../models/allocatorChannelCommitment";
-import { channelExists, formResponse, validSignature } from "./channelManagement";
+import { Commitment, CommitmentType, Signature } from 'fmg-core';
+import {
+  appAttributesFromBytes,
+  bytesFromAppAttributes,
+} from 'fmg-nitro-adjudicator';
+import { ChannelResponse } from '.';
+import { AppAttrExtractor } from '../../types';
+import { queries } from '../db/queries/allocator_channels';
+import errors from '../errors';
+import AllocatorChannel from '../models/allocatorChannel';
+import AllocatorChannelCommitment from '../models/allocatorChannelCommitment';
+import {
+  channelExists,
+  formResponse,
+  validSignature,
+} from './channelManagement';
 
-export async function openLedgerChannel(theirCommitment: Commitment, theirSignature: Signature, extractAppAttrs: AppAttrExtractor): Promise<ChannelResponse> {
-    if (await channelExists(theirCommitment)) {
-      throw errors.CHANNEL_EXISTS;
-    }
+export async function openLedgerChannel(
+  theirCommitment: Commitment,
+  theirSignature: Signature,
+  extractAppAttrs: AppAttrExtractor,
+): Promise<ChannelResponse> {
+  if (await channelExists(theirCommitment)) {
+    throw errors.CHANNEL_EXISTS;
+  }
 
-    if (!validSignature(theirCommitment, theirSignature)) {
-      throw errors.COMMITMENT_NOT_SIGNED;
-    }
+  if (!validSignature(theirCommitment, theirSignature)) {
+    throw errors.COMMITMENT_NOT_SIGNED;
+  }
 
-    const allocator_channel = await queries.openAllocatorChannel(theirCommitment, extractAppAttrs);
-    return formResponse(allocator_channel.id, bytesFromAppAttributes);
+  const allocator_channel = await queries.openAllocatorChannel(
+    theirCommitment,
+    extractAppAttrs,
+  );
+  return formResponse(allocator_channel.id, bytesFromAppAttributes);
 }
 
-export async function updateLedgerChannel(theirCommitment: Commitment, theirSignature: Signature, extractAppAttrs: AppAttrExtractor
-  ): Promise<ChannelResponse> {
-    if (!validSignature(theirCommitment, theirSignature)) {
-        throw errors.COMMITMENT_NOT_SIGNED;
-    }
+export async function updateLedgerChannel(
+  theirCommitment: Commitment,
+  theirSignature: Signature,
+  extractAppAttrs: AppAttrExtractor,
+): Promise<ChannelResponse> {
+  if (!validSignature(theirCommitment, theirSignature)) {
+    throw errors.COMMITMENT_NOT_SIGNED;
+  }
 
-    if (!(await channelExists(theirCommitment))) {
-        throw errors.CHANNEL_MISSING;
-    }
+  if (!(await channelExists(theirCommitment))) {
+    throw errors.CHANNEL_MISSING;
+  }
 
-    if (!await valuePreserved(theirCommitment)) {
-        throw errors.VALUE_LOST;
-    }
+  if (!(await valuePreserved(theirCommitment))) {
+    throw errors.VALUE_LOST;
+  }
 
-    if (!await validTransition(theirCommitment)) {
-      throw errors.INVALID_TRANSITION;
-    }
+  if (!(await validTransition(theirCommitment))) {
+    throw errors.INVALID_TRANSITION;
+  }
 
-    const ourCommitment = nextCommitment(theirCommitment);
+  const ourCommitment = nextCommitment(theirCommitment);
 
-    const allocator_channel = await queries.updateAllocatorChannel(theirCommitment, ourCommitment, extractAppAttrs);
-    return formResponse(allocator_channel.id, bytesFromAppAttributes);
+  const allocator_channel = await queries.updateAllocatorChannel(
+    theirCommitment,
+    ourCommitment,
+    extractAppAttrs,
+  );
+  return formResponse(allocator_channel.id, bytesFromAppAttributes);
 }
 
 export function nextCommitment(theirCommitment: Commitment): Commitment {
@@ -62,7 +83,11 @@ export function nextCommitment(theirCommitment: Commitment): Commitment {
       };
 
     case CommitmentType.App:
-      const { consensusCounter, proposedAllocation, proposedDestination} = appAttributesFromBytes(theirCommitment.appAttributes);
+      const {
+        consensusCounter,
+        proposedAllocation,
+        proposedDestination,
+      } = appAttributesFromBytes(theirCommitment.appAttributes);
       const appAttributes = bytesFromAppAttributes({
         consensusCounter: consensusCounter + 1,
         proposedAllocation,
@@ -85,21 +110,23 @@ export function nextCommitment(theirCommitment: Commitment): Commitment {
 }
 
 export async function valuePreserved(theirCommitment: any): Promise<boolean> {
-    return theirCommitment && true;
+  return theirCommitment && true;
 }
 
-export async function validTransition(theirCommitment: Commitment): Promise<boolean> {
+export async function validTransition(
+  theirCommitment: Commitment,
+): Promise<boolean> {
   const { channel } = theirCommitment;
   const allocator_channel_id = (await AllocatorChannel.query()
-  .where({rules_address: channel.channelType, nonce: channel.nonce})
-  .select("id")
-  .first()).id;
+    .where({ rules_address: channel.channelType, nonce: channel.nonce })
+    .select('id')
+    .first()).id;
 
   const currentCommitment = await AllocatorChannelCommitment.query()
-  .where({ allocator_channel_id })
-  .orderBy("id", "desc")
-  .select()
-  .first();
+    .where({ allocator_channel_id })
+    .orderBy('id', 'desc')
+    .select()
+    .first();
 
   return theirCommitment.turnNum === currentCommitment.turn_number + 1;
 }

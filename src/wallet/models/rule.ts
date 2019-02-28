@@ -3,7 +3,6 @@ import { Model } from 'objection';
 import AllocatorChannel from './allocatorChannel';
 
 export default class Rule extends Model {
-
   static tableName = 'rules';
   static idColumn = 'address';
 

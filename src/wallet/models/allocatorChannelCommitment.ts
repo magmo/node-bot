@@ -1,4 +1,12 @@
-import { Address, Bytes, Commitment, CommitmentType, toHex, Uint256, Uint32 } from 'fmg-core';
+import {
+  Address,
+  Bytes,
+  Commitment,
+  CommitmentType,
+  toHex,
+  Uint256,
+  Uint32,
+} from 'fmg-core';
 import { Model } from 'objection';
 import { AppAttrSanitizer, GenericAppAttributes } from '../../types';
 import Allocation from './allocation';

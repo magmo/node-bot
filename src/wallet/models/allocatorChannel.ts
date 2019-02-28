@@ -4,7 +4,6 @@ import AllocatorChannelParticipant from './allocator_channel_participant';
 import ConsensusCommitment from './allocatorChannelCommitment';
 
 export default class AllocatorChannel extends Model {
-
   get asCoreChannel(): Channel {
     return {
       channelType: this.rules_address,

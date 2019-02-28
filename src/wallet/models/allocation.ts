@@ -3,7 +3,6 @@ import { Model } from 'objection';
 import ConsensusCommitment from './allocatorChannelCommitment';
 
 export default class Allocation extends Model {
-
   static tableName = 'allocations';
 
   static relationMappings = {

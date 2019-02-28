@@ -43,50 +43,31 @@ export async function updateLedgerChannel(theirCommitment: Commitment, theirSign
 }
 
 export function nextCommitment(theirCommitment: Commitment): Commitment {
-  switch (theirCommitment.commitmentType) {
-    case CommitmentType.PreFundSetup:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
-
-    case CommitmentType.PostFundSetup:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
-
-    case CommitmentType.App:
-    const ourMove = move(fromCoreCommitment(theirCommitment));
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: 0,
-        appAttributes: asCoreCommitment(ourMove).appAttributes,
-      };
-    case CommitmentType.Conclude:
-      return {
-        ...theirCommitment,
-        turnNum: theirCommitment.turnNum + 1,
-        commitmentCount: theirCommitment.commitmentCount + 1,
-      };
+  if (theirCommitment.commitmentType !== CommitmentType.App) {
+    throw new Error("")
   }
+
+  const ourMove = move(fromCoreCommitment(theirCommitment));
+    return {
+      ...theirCommitment,
+      turnNum: theirCommitment.turnNum + 1,
+      commitmentCount: 0,
+      appAttributes: asCoreCommitment(ourMove).appAttributes,
+    };
 }
 
 function move(theirPosition: AppAttributes): AppAttributes {
   switch (theirPosition.positionType) {
     case PositionType.Resting:
       const salt = '0xabc';
-      const aPlay;
+      const ourPlay = Play.Paper;
       return {
         stake: theirPosition.stake,
         positionType: PositionType.Proposed,
-        salt: '0x',
-        preCommit: preCommit(Play.Paper, salt),
-        aPlay,
-        bPlay,
+        salt,
+        preCommit: preCommit(ourPlay, salt),
+        aPlay: Play.None,
+        bPlay: Play.None,
       };
     case PositionType.Proposed:
       return theirPosition;

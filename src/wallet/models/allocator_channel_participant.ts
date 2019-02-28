@@ -2,7 +2,6 @@ import { Model } from 'objection';
 import { Address } from '../../types';
 
 export default class AllocatorChannelParticipant extends Model {
-
   static tableName = 'allocator_channel_participants';
 
   static relationMappings = {

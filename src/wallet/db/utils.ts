@@ -1,4 +1,4 @@
-import * as Knex from "knex";
+import * as Knex from 'knex';
 
 export function addAddressCheck(knex: Knex, table: string, column: string) {
   return knex.raw(`\
