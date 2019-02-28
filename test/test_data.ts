@@ -1,41 +1,63 @@
-import { Channel, Commitment, CommitmentType, sign, toHex, } from 'fmg-core';
-import { bytesFromAppAttributes } from "fmg-nitro-adjudicator";
-import { ALLOCATION, BEGINNING_APP_CHANNEL_HOLDINGS, BEGINNING_APP_CHANNEL_NONCE, DESTINATION, DUMMY_RULES_ADDRESS, FUNDED_CHANNEL_HOLDINGS,  FUNDED_CHANNEL_NONCE, HUB_ADDRESS, NONCE, ONGOING_APP_CHANNEL_HOLDINGS, ONGOING_APP_CHANNEL_NONCE, PARTICIPANT_ADDRESS, PARTICIPANT_PRIVATE_KEY, PARTICIPANTS } from "../src/constants";
-import { IAllocatorChannelCommitment } from '../src/wallet/services';
+import { Channel, Commitment, CommitmentType, sign, toHex } from 'fmg-core';
+import {
+  asCoreCommitment,
+  bytesFromAppAttributes,
+} from 'fmg-nitro-adjudicator';
+import {
+  ALLOCATION,
+  BEGINNING_APP_CHANNEL_HOLDINGS,
+  BEGINNING_APP_CHANNEL_NONCE,
+  DESTINATION,
+  DUMMY_RULES_ADDRESS,
+  FUNDED_CHANNEL_HOLDINGS,
+  FUNDED_CHANNEL_NONCE,
+  HUB_ADDRESS,
+  NONCE,
+  ONGOING_APP_CHANNEL_HOLDINGS,
+  ONGOING_APP_CHANNEL_NONCE,
+  PARTICIPANT_ADDRESS,
+  PARTICIPANT_PRIVATE_KEY,
+  PARTICIPANTS,
+} from '../src/constants';
+import { LedgerCommitment } from '../src/types';
 
 const default_channel: Channel = {
-    channelType: DUMMY_RULES_ADDRESS,
-    participants: PARTICIPANTS,
-    nonce: NONCE,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: NONCE,
 };
 
 export const funded_channel: Channel = {
-    channelType: DUMMY_RULES_ADDRESS,
-    participants: PARTICIPANTS,
-    nonce: FUNDED_CHANNEL_NONCE,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: FUNDED_CHANNEL_NONCE,
 };
 
 export const beginning_app_phase_channel: Channel = {
-    channelType: DUMMY_RULES_ADDRESS,
-    participants: PARTICIPANTS,
-    nonce: BEGINNING_APP_CHANNEL_NONCE,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: BEGINNING_APP_CHANNEL_NONCE,
 };
 
 export const ongoing_app_phase_channel: Channel = {
-    channelType: DUMMY_RULES_ADDRESS,
-    participants: PARTICIPANTS,
-    nonce: ONGOING_APP_CHANNEL_NONCE,
+  channelType: DUMMY_RULES_ADDRESS,
+  participants: PARTICIPANTS,
+  nonce: ONGOING_APP_CHANNEL_NONCE,
 };
 
-const app_attrs = (n: number, proposedAllocation=ALLOCATION, proposedDestination=DESTINATION) => bytesFromAppAttributes({
+const app_attrs = (
+  n: number,
+  proposedAllocation = ALLOCATION,
+  proposedDestination = DESTINATION,
+) => ({
   consensusCounter: n % 2,
   proposedAllocation,
   proposedDestination,
 });
 
 const base = {
-    allocation: ALLOCATION,
-    destination: DESTINATION,
+  allocation: ALLOCATION,
+  destination: DESTINATION,
 };
 
 const base_response = {
@@ -48,7 +70,7 @@ const base_response = {
   destination: DESTINATION,
 };
 
-function pre_fund_setup(turnNum: number): Commitment {
+function pre_fund_setup(turnNum: number): LedgerCommitment {
   return {
     ...base,
     channel: { ...default_channel },
@@ -59,7 +81,7 @@ function pre_fund_setup(turnNum: number): Commitment {
   };
 }
 
-function post_fund_setup(turnNum: number): Commitment {
+function post_fund_setup(turnNum: number): LedgerCommitment {
   return {
     ...base,
     channel: { ...funded_channel },
@@ -70,7 +92,7 @@ function post_fund_setup(turnNum: number): Commitment {
   };
 }
 
-function app(turnNum: number, channel: Channel): Commitment {
+function app(turnNum: number, channel: Channel): LedgerCommitment {
   return {
     ...base,
     channel,
@@ -90,7 +112,7 @@ export const constructors = {
 export const pre_fund_setup_1_response: Commitment = {
   ...base_response,
   turnNum: 1,
-  appAttributes: app_attrs(0),
+  appAttributes: bytesFromAppAttributes(app_attrs(0)),
   commitmentCount: 1,
   commitmentType: CommitmentType.PreFundSetup,
 };
@@ -98,7 +120,7 @@ export const pre_fund_setup_1_response: Commitment = {
 export const post_fund_setup_1_response: Commitment = {
   ...base_response,
   turnNum: 3,
-  appAttributes: app_attrs(0),
+  appAttributes: bytesFromAppAttributes(app_attrs(0)),
   commitmentCount: 1,
   channel: funded_channel,
   commitmentType: CommitmentType.PostFundSetup,
@@ -107,14 +129,13 @@ export const post_fund_setup_1_response: Commitment = {
 export const app_1_response: Commitment = {
   ...base_response,
   turnNum: 5,
-  appAttributes: app_attrs(1),
+  appAttributes: bytesFromAppAttributes(app_attrs(1)),
   commitmentCount: 0,
   channel: beginning_app_phase_channel,
   commitmentType: CommitmentType.App,
 };
 
-
-const commitment = pre_fund_setup(0);
+const commitment = asCoreCommitment(pre_fund_setup(1));
 export const open_channel_params = {
   from: PARTICIPANT_ADDRESS,
   commitment,
@@ -124,7 +145,7 @@ export const open_channel_params = {
 export const invalid_open_channel_params = {
   from: PARTICIPANT_ADDRESS,
   commitment,
-  signature: sign(toHex(commitment), "0xf00"),
+  signature: sign(toHex(commitment), '0xf00'),
 };
 
 export const created_channel = {
