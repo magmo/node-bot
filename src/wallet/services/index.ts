@@ -6,6 +6,7 @@ import {
   Uint256,
   Uint32,
 } from 'fmg-core';
+import { AppAttrSanitizer } from '../../types';
 import { Blockchain } from './blockchain';
 import * as ChannelManagement from './channelManagement';
 import * as LedgerChannelManager from './ledgerChannelManager';
@@ -30,10 +31,12 @@ export const channelExists: (c: Commitment) => Promise<boolean> =
 export const openLedgerChannel: (
   c: Commitment,
   s: Signature,
+  sanitize: AppAttrSanitizer,
 ) => Promise<ChannelResponse> = LedgerChannelManager.openLedgerChannel;
 export const updateLedgerChannel: (
   c: Commitment,
   s: Signature,
+  sanitize: AppAttrSanitizer,
 ) => Promise<ChannelResponse> = LedgerChannelManager.updateLedgerChannel;
 export const fund: (id: Address, amount: Uint256) => Promise<Uint256> =
   Blockchain.fund;
