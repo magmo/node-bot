@@ -1,4 +1,12 @@
-import { BaseCommitment, Bytes, Bytes32, Commitment, CommitmentType, Uint256, Uint8 } from 'fmg-core';
+import {
+  BaseCommitment,
+  Bytes,
+  Bytes32,
+  Commitment,
+  CommitmentType,
+  Uint256,
+  Uint8,
+} from 'fmg-core';
 import abi from 'web3-eth-abi';
 
 export interface AppAttributes {
@@ -11,17 +19,27 @@ export interface AppAttributes {
 }
 
 const SolidityRPSCommitmentType = {
-  "RPSCommitmentStruct": {
-    positionType: "uint8",
-    stake: "uint256",
-    preCommit: "bytes32",
-    bPlay: "uint8",
-    aPlay: "uint8",
-    salt: "bytes32",
+  RPSCommitmentStruct: {
+    positionType: 'uint8',
+    stake: 'uint256',
+    preCommit: 'bytes32',
+    bPlay: 'uint8',
+    aPlay: 'uint8',
+    salt: 'bytes32',
   },
 };
-export enum PositionType { Resting, Proposed, Accepted, Reveal }
-export enum Play { None, Rock, Paper, Scissors }
+export enum PositionType {
+  Resting,
+  Proposed,
+  Accepted,
+  Reveal,
+}
+export enum Play {
+  None,
+  Rock,
+  Paper,
+  Scissors,
+}
 export interface RPSBaseCommitment extends BaseCommitment {
   positionType: PositionType;
   stake: Uint256;
@@ -36,15 +54,20 @@ export interface RPSCommitment extends RPSBaseCommitment {
 }
 
 export function sanitize(appAttrs: AppAttributes): Bytes {
+  // TODO sanitize plays and salt
   return encodeAppAttributes(appAttrs);
 }
 
 function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
-  const { positionType, stake, preCommit, bPlay, aPlay, salt, } = appAttrs;
-  return abi.encodeParameter(
-    SolidityRPSCommitmentType,
-    [positionType, stake, preCommit, bPlay, aPlay, salt]
-  );
+  const { positionType, stake, preCommit, bPlay, aPlay, salt } = appAttrs;
+  return abi.encodeParameter(SolidityRPSCommitmentType, [
+    positionType,
+    stake,
+    preCommit,
+    bPlay,
+    aPlay,
+    salt,
+  ]);
 }
 
 function decodeAppAttributes(appAttrs: string): AppAttributes {
@@ -102,11 +125,18 @@ export function asCoreCommitment(rpsCommitment: RPSCommitment): Commitment {
     allocation,
     destination,
     commitmentCount,
-    appAttributes: encodeAppAttributes({ positionType, stake, preCommit, bPlay, aPlay, salt }),
+    appAttributes: encodeAppAttributes({
+      positionType,
+      stake,
+      preCommit,
+      bPlay,
+      aPlay,
+      salt,
+    }),
   };
 }
 
-const zeroBytes32: Bytes32 = "0x" + "0".repeat(64);
+const zeroBytes32: Bytes32 = '0x' + '0'.repeat(64);
 export function defaultAppAttrs(roundBuyIn): AppAttributes {
   return {
     stake: roundBuyIn,
