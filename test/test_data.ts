@@ -135,7 +135,7 @@ export const app_1_response: Commitment = {
   commitmentType: CommitmentType.App,
 };
 
-const commitment = asCoreCommitment(pre_fund_setup(1));
+const commitment = asCoreCommitment(pre_fund_setup(0));
 export const open_channel_params = {
   from: PARTICIPANT_ADDRESS,
   commitment,
@@ -150,7 +150,7 @@ export const invalid_open_channel_params = {
 
 export const created_channel = {
   id: expect.any(Number),
-  holdings: 0,
+  holdings: '0x0a',
   rules_address: DUMMY_RULES_ADDRESS,
   participants: PARTICIPANTS.map(p => ({ address: p })),
 };

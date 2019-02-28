@@ -25,14 +25,14 @@ const participants = [
 const channel_1 = {
   rules_address: DUMMY_RULES_ADDRESS,
   nonce: 1,
-  holdings: 0,
+  holdings: '0x00',
   participants,
 };
 
 const channel_2 = {
   rules_address: DUMMY_RULES_ADDRESS,
   nonce: 2,
-  holdings: 0,
+  holdings: '0x00',
   participants,
 };
 
