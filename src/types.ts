@@ -1,4 +1,12 @@
-import { Address, Bytes, Bytes32, Uint32, Uint8 } from 'fmg-core';
+import {
+  Address,
+  BaseCommitment,
+  Bytes,
+  Bytes32,
+  Uint32,
+  Uint8,
+} from 'fmg-core';
+import { AppAttributes } from '../../minimal_viable_force_move_games/packages/fmg-nitro-adjudicator/lib';
 
 export type CommitmentString = string;
 
@@ -14,10 +22,13 @@ export interface UpdateChannelParams {
   signature: Signature;
 }
 
-export type AppAttrExtractor = (attrs: Bytes) => GenericAppAttributes;
-export type AppAttrSanitizer = (attrs: GenericAppAttributes) => Bytes;
-export interface GenericAppAttributes {
-  [x: string]: any;
+export type AppAttrExtractor = (attrs: Bytes) => any;
+export type AppAttrSanitizer = (attrs: any) => Bytes;
+export interface LedgerCommitment extends BaseCommitment {
+  appAttributes: AppAttributes;
+}
+export interface AppCommitment extends BaseCommitment {
+  appAttributes: any;
 }
 
 export { Address, Bytes32, Bytes, Uint8, Uint32 };

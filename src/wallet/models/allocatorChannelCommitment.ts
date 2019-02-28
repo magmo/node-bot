@@ -8,7 +8,7 @@ import {
   Uint32,
 } from 'fmg-core';
 import { Model } from 'objection';
-import { AppAttrSanitizer, GenericAppAttributes } from '../../types';
+import { AppAttrSanitizer } from '../../types';
 import Allocation from './allocation';
 import AllocatorChannel from './allocatorChannel';
 
@@ -40,7 +40,7 @@ export default class AllocatorChannelCommitment extends Model {
   commitment_type!: CommitmentType;
   commitment_count!: Uint32;
   allocations!: Allocation[];
-  app_attrs!: GenericAppAttributes;
+  app_attrs!: any;
 
   toHex(sanitize: AppAttrSanitizer): Bytes {
     return toHex(this.asCoreCommitment(sanitize));
