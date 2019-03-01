@@ -1,3 +1,4 @@
+import { randomBytes } from 'crypto';
 import {
   BaseCommitment,
   Bytes,
@@ -7,7 +8,8 @@ import {
   Uint256,
   Uint8,
 } from 'fmg-core';
-import abi from 'web3-eth-abi';
+import * as abi from 'web3-eth-abi';
+import { soliditySha3 } from 'web3-utils';
 
 export interface AppAttributes {
   positionType: Uint8;
@@ -40,25 +42,23 @@ export enum Play {
   Paper,
   Scissors,
 }
-export interface RPSBaseCommitment extends BaseCommitment {
-  positionType: PositionType;
-  stake: Uint256;
-  preCommit: Bytes32;
-  bPlay: Play;
-  aPlay: Play;
-  salt: Bytes32;
-}
 
-export interface RPSCommitment extends RPSBaseCommitment {
-  commitmentType: CommitmentType;
+export interface RPSCommitment extends BaseCommitment {
+  appAttributes: AppAttributes;
 }
 
 export function sanitize(appAttrs: AppAttributes): Bytes {
   // TODO sanitize plays and salt
-  return encodeAppAttributes(appAttrs);
+  const sanitizedAttrs = { ...appAttrs };
+  if (appAttrs.positionType === PositionType.Proposed) {
+    sanitizedAttrs.aPlay = Play.None;
+    sanitizedAttrs.salt = zeroBytes32;
+  }
+
+  return encodeAppAttributes(sanitizedAttrs);
 }
 
-function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
+export function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
   const { positionType, stake, preCommit, bPlay, aPlay, salt } = appAttrs;
   return abi.encodeParameter(SolidityRPSCommitmentType, [
     positionType,
@@ -70,7 +70,7 @@ function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
   ]);
 }
 
-function decodeAppAttributes(appAttrs: string): AppAttributes {
+export function decodeAppAttributes(appAttrs: string): AppAttributes {
   const parameters = abi.decodeParameter(SolidityRPSCommitmentType, appAttrs);
   return {
     positionType: parameters[0] as PositionType,
@@ -83,67 +83,39 @@ function decodeAppAttributes(appAttrs: string): AppAttributes {
 }
 
 export function fromCoreCommitment(commitment: Commitment): RPSCommitment {
-  const {
-    channel,
-    commitmentType,
-    turnNum,
-    allocation,
-    destination,
-    commitmentCount,
-  } = commitment;
   return {
-    channel,
-    commitmentType,
-    turnNum,
-    allocation,
-    destination,
-    commitmentCount,
-    ...decodeAppAttributes(commitment.appAttributes),
+    ...commitment,
+    appAttributes: decodeAppAttributes(commitment.appAttributes),
   };
 }
 
 export function asCoreCommitment(rpsCommitment: RPSCommitment): Commitment {
-  const {
-    channel,
-    commitmentType,
-    turnNum,
-    allocation,
-    destination,
-    commitmentCount,
-    positionType,
-    stake,
-    preCommit,
-    bPlay,
-    aPlay,
-    salt,
-  } = rpsCommitment;
-
   return {
-    channel,
-    commitmentType,
-    turnNum,
-    allocation,
-    destination,
-    commitmentCount,
-    appAttributes: encodeAppAttributes({
-      positionType,
-      stake,
-      preCommit,
-      bPlay,
-      aPlay,
-      salt,
-    }),
+    ...rpsCommitment,
+    appAttributes: encodeAppAttributes(rpsCommitment.appAttributes),
   };
 }
 
-const zeroBytes32: Bytes32 = '0x' + '0'.repeat(64);
-export function defaultAppAttrs(roundBuyIn): AppAttributes {
+export const zeroBytes32: Bytes32 = '0x' + '0'.repeat(64);
+export function defaultAppAttrs(stake): AppAttributes {
   return {
-    stake: roundBuyIn,
+    stake,
     positionType: 0,
     preCommit: zeroBytes32,
     bPlay: Play.None,
     aPlay: Play.None,
     salt: zeroBytes32,
   };
+}
+
+export function generateSalt(): Bytes32 {
+  // TODO: non-deterministic salt
+  return '0x' + '12'.repeat(32);
+}
+
+export function hashCommitment(play: Play, salt: string) {
+  return soliditySha3(
+    { type: 'uint256', value: play },
+    { type: 'bytes32', value: salt },
+  );
 }
