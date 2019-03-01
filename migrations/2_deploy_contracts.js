@@ -1,12 +1,18 @@
-var Commitment = artifacts.require("fmg-core/contracts/Commitment.sol");
-var Rules = artifacts.require("fmg-core/contracts/Rules.sol");
+var Commitment = artifacts.require('fmg-core/contracts/Commitment.sol');
+var Rules = artifacts.require('fmg-core/contracts/Rules.sol');
 
-var NitroAdjudicator = artifacts.require("fmg-nitro-adjudicator/contracts/NitroAdjudicator.sol")
+var NitroAdjudicator = artifacts.require(
+  'fmg-nitro-adjudicator/contracts/NitroAdjudicator.sol',
+);
 
-var ConsensusCommitment = artifacts.require("fmg-nitro-adjudicator/contracts/ConsensusCommitment.sol");
-var ConsensusApp = artifacts.require("fmg-nitro-adjudicator/contracts/ConsensusApp.sol");
+var ConsensusCommitment = artifacts.require(
+  'fmg-nitro-adjudicator/contracts/ConsensusCommitment.sol',
+);
+var ConsensusApp = artifacts.require(
+  'fmg-nitro-adjudicator/contracts/ConsensusApp.sol',
+);
 
-module.exports = function (deployer) {
+module.exports = function(deployer) {
   deployer.deploy(Commitment);
 
   deployer.link(Commitment, Rules);
