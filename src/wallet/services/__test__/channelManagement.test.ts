@@ -67,25 +67,6 @@ describe('validSignature', () => {
   });
 });
 
-describe('channelExists', () => {
-  it('returns true when a channel exists with the given (nonce, rules_address)', async () => {
-    expect(await ChannelManagement.channelExists(post_fund_setup_0)).toBe(true);
-  });
-
-  it('returns false when a channel exists with the given rules_address, but a different nonce', async () => {
-    const commitment = post_fund_setup_0;
-    expect(await ChannelManagement.channelExists(commitment)).toBe(true);
-    commitment.channel.nonce = 314;
-    expect(await ChannelManagement.channelExists(commitment)).toBe(false);
-  });
-
-  it('returns false when a channel exists with a different rules_address', async () => {
-    const commitment = post_fund_setup_0;
-    commitment.channel.channelType = HUB_ADDRESS;
-    expect(await ChannelManagement.channelExists(commitment)).toBe(false);
-  });
-});
-
 describe.skip('channelFunded', () => {
   it('works', () => {
     expect.assertions(1);

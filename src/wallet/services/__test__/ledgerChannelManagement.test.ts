@@ -1,8 +1,5 @@
-import { Bytes, Commitment, sign, Signature, toHex } from 'fmg-core';
-import {
-  appAttributesFromBytes,
-  asCoreCommitment,
-} from 'fmg-nitro-adjudicator';
+import { Bytes, sign, Signature, toHex } from 'fmg-core';
+import { asCoreCommitment } from 'fmg-nitro-adjudicator';
 import {
   app_1_response,
   beginning_app_phase_channel,
@@ -13,7 +10,6 @@ import {
 import {
   DUMMY_RULES_ADDRESS,
   FUNDED_CHANNEL_NONCE,
-  HUB_PRIVATE_KEY,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
   UNKNOWN_RULES_ADDRESS,
@@ -26,19 +22,15 @@ import * as LedgerChannelManager from '../ledgerChannelManager';
 process.env.NODE_ENV = 'test';
 
 let pre_fund_setup_0: LedgerCommitment;
-let pre_fund_setup_1: LedgerCommitment;
 let post_fund_setup_0: LedgerCommitment;
-let post_fund_setup_1: LedgerCommitment;
 let app_0: LedgerCommitment;
 let app_1: LedgerCommitment;
 let theirSignature: Signature;
 
 beforeEach(() => {
   pre_fund_setup_0 = testDataConstructors.pre_fund_setup(0);
-  pre_fund_setup_1 = testDataConstructors.pre_fund_setup(1);
 
   post_fund_setup_0 = testDataConstructors.post_fund_setup(2);
-  post_fund_setup_1 = testDataConstructors.post_fund_setup(3);
 
   app_0 = testDataConstructors.app(4, beginning_app_phase_channel);
   app_1 = testDataConstructors.app(5, beginning_app_phase_channel);
@@ -48,73 +40,81 @@ function signAppCommitment(c: LedgerCommitment, k: Bytes): Signature {
   return sign(toHex(asCoreCommitment(c)), k);
 }
 
-describe('openLedgerChannel', () => {
-  beforeEach(() => {
-    theirSignature = signAppCommitment(
-      pre_fund_setup_0,
-      PARTICIPANT_PRIVATE_KEY,
-    );
-  });
-
-  it('should return an allocator channel and a signed commitment', async () => {
-    const {
-      commitment,
-      signature,
-    } = await LedgerChannelManager.openLedgerChannel(
-      pre_fund_setup_0,
-      theirSignature,
-    );
-    expect(commitment).toMatchObject(pre_fund_setup_1_response);
-    expect(ChannelManagement.validSignature(commitment, signature)).toBe(true);
-  });
-
-  it('throws when the rules are not known', async () => {
-    expect.assertions(1);
-
-    const unknown_rules = { ...pre_fund_setup_0 };
-    unknown_rules.channel.channelType = UNKNOWN_RULES_ADDRESS;
-    const signature = signAppCommitment(unknown_rules, PARTICIPANT_PRIVATE_KEY);
-    await LedgerChannelManager.openLedgerChannel(
-      unknown_rules,
-      signature,
-    ).catch(err => {
-      expect(err.message).toMatch(
-        'insert or update on table "allocator_channels" violates foreign key constraint "allocator_channels_rules_address_foreign"',
+describe('updateLedgerChannel', () => {
+  describe('opening a channel', () => {
+    beforeEach(() => {
+      theirSignature = signAppCommitment(
+        pre_fund_setup_0,
+        PARTICIPANT_PRIVATE_KEY,
       );
     });
-  });
 
-  it('throws when the commitment is incorrectly signed', async () => {
-    expect.assertions(1);
-    theirSignature = signAppCommitment(pre_fund_setup_0, '0xf00');
+    it('should return an allocator channel and a signed commitment', async () => {
+      const {
+        commitment,
+        signature,
+      } = await LedgerChannelManager.updateLedgerChannel(
+        pre_fund_setup_0,
+        theirSignature,
+      );
+      expect(commitment).toMatchObject(pre_fund_setup_1_response);
+      expect(ChannelManagement.validSignature(commitment, signature)).toBe(
+        true,
+      );
+    });
 
-    await LedgerChannelManager.openLedgerChannel(
-      pre_fund_setup_0,
-      theirSignature,
-    ).catch((err: Error) => {
-      expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
+    it('throws when the rules are not known', async () => {
+      expect.assertions(1);
+
+      const unknown_rules = { ...pre_fund_setup_0 };
+      unknown_rules.channel.channelType = UNKNOWN_RULES_ADDRESS;
+      const signature = signAppCommitment(
+        unknown_rules,
+        PARTICIPANT_PRIVATE_KEY,
+      );
+      await LedgerChannelManager.updateLedgerChannel(
+        unknown_rules,
+        signature,
+      ).catch(err => {
+        expect(err.message).toMatch(
+          'insert or update on table "allocator_channels" violates foreign key constraint "allocator_channels_rules_address_foreign"',
+        );
+      });
+    });
+
+    it('throws when the commitment is incorrectly signed', async () => {
+      expect.assertions(1);
+      theirSignature = signAppCommitment(pre_fund_setup_0, '0xf00');
+
+      await LedgerChannelManager.updateLedgerChannel(
+        pre_fund_setup_0,
+        theirSignature,
+      ).catch((err: Error) => {
+        expect(err).toMatchObject(errors.COMMITMENT_NOT_SIGNED);
+      });
+    });
+
+    it('throws when the channel exists', async () => {
+      expect.assertions(1);
+
+      pre_fund_setup_0.channel = {
+        channelType: DUMMY_RULES_ADDRESS,
+        nonce: FUNDED_CHANNEL_NONCE,
+        participants: PARTICIPANTS,
+      };
+      theirSignature = signAppCommitment(
+        pre_fund_setup_0,
+        PARTICIPANT_PRIVATE_KEY,
+      );
+
+      await LedgerChannelManager.updateLedgerChannel(
+        pre_fund_setup_0,
+        theirSignature,
+      ).catch((err: Error) => {
+        expect(err).toMatchObject(errors.CHANNEL_EXISTS);
+      });
     });
   });
-
-  it('throws when the channel exists', async () => {
-    expect.assertions(1);
-
-    pre_fund_setup_0.channel = {
-      channelType: DUMMY_RULES_ADDRESS,
-      nonce: FUNDED_CHANNEL_NONCE,
-      participants: PARTICIPANTS,
-    };
-
-    await LedgerChannelManager.openLedgerChannel(
-      pre_fund_setup_0,
-      theirSignature,
-    ).catch((err: Error) => {
-      expect(err).toMatchObject(errors.CHANNEL_EXISTS);
-    });
-  });
-});
-
-describe('updateLedgerChannel', () => {
   describe('transitioning to a postFundSetup commitment', () => {
     beforeEach(() => {
       theirSignature = signAppCommitment(

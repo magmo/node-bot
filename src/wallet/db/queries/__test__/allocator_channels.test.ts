@@ -1,7 +1,8 @@
-import { appAttributesFromBytes } from 'fmg-nitro-adjudicator';
+import { errors } from '../../..';
 import {
   constructors as testDataConstructors,
   created_channel,
+  funded_channel,
 } from '../../../../../test/test_data';
 import {
   SEEDED_ALLOCATIONS,
@@ -19,88 +20,98 @@ import { queries } from '../allocator_channels';
 
 process.env.NODE_ENV = 'test';
 
-describe('openAllocatorChannel', () => {
-  it('works', async () => {
-    const allocator_channel = await queries.openAllocatorChannel(
-      testDataConstructors.pre_fund_setup(0),
-    );
-    expect.assertions(5);
-
-    expect(allocator_channel).toMatchObject(created_channel);
-    expect((await knex('allocator_channels').select('*')).length).toEqual(
-      SEEDED_CHANNELS + 1,
-    );
-    expect(
-      (await knex('allocator_channel_commitments').select('*')).length,
-    ).toEqual(SEEDED_COMMITMENTS + 2);
-
-    expect((await knex('allocations').select('*')).length).toEqual(
-      SEEDED_ALLOCATIONS + 4,
-    );
-
-    expect(
-      (await knex('allocator_channel_participants').select('*')).length,
-    ).toEqual(SEEDED_PARTICIPANTS + 2);
-    // done()
-  });
-
-  it('throws when the nonce has already been used', async () => {
-    const commitment = testDataConstructors.pre_fund_setup(0);
-    await queries.openAllocatorChannel(commitment);
-    expect.assertions(1);
-    // TODO: Figure out how to more nicely test this ...
-    await queries.openAllocatorChannel(commitment).catch(err => {
-      expect(err.message).toMatch(
-        'duplicate key value violates unique constraint "allocator_channels_nonce_unique"',
-      );
-    });
-  });
-});
-
 describe('updateAllocatorChannel', () => {
-  it('works', async () => {
-    const { nonce, channelType } = testDataConstructors.post_fund_setup(
-      2,
-    ).channel;
-    const existing_allocator_channel = await AllocatorChannel.query()
-      .where({ nonce, rules_address: channelType })
-      .eager('[commitments.[allocations],participants]')
-      .first();
+  describe('when theirCommitment is a PreFundSetup', () => {
+    it("works when the channel doesn't exist", async () => {
+      const allocator_channel = await queries.updateAllocatorChannel(
+        testDataConstructors.pre_fund_setup(0),
+        testDataConstructors.pre_fund_setup(1),
+      );
+      expect.assertions(5);
 
-    expect(existing_allocator_channel).toMatchObject(seeds.funded_channel);
+      expect(allocator_channel).toMatchObject(created_channel);
+      expect((await knex('allocator_channels').select('*')).length).toEqual(
+        SEEDED_CHANNELS + 1,
+      );
+      expect(
+        (await knex('allocator_channel_commitments').select('*')).length,
+      ).toEqual(SEEDED_COMMITMENTS + 2);
 
-    const updated_allocator_channel = await queries.updateAllocatorChannel(
-      testDataConstructors.post_fund_setup(2),
-      testDataConstructors.post_fund_setup(3),
-    );
+      expect((await knex('allocations').select('*')).length).toEqual(
+        SEEDED_ALLOCATIONS + 4,
+      );
 
-    expect(updated_allocator_channel).toMatchObject({
-      ...seeds.funded_channel,
-      commitments: [
-        seedDataConstructors.post_fund_setup(2),
-        seedDataConstructors.post_fund_setup(3),
-      ],
+      expect(
+        (await knex('allocator_channel_participants').select('*')).length,
+      ).toEqual(SEEDED_PARTICIPANTS + 2);
     });
 
-    expect((await knex('allocator_channels').select('*')).length).toEqual(
-      SEEDED_CHANNELS,
-    );
-    expect(
-      (await knex('allocator_channel_commitments')
-        .where({ allocator_channel_id: updated_allocator_channel.id })
-        .select('*')).length,
-    ).toEqual(2);
-
-    expect((await knex('allocations').select('*')).length).toEqual(
-      SEEDED_ALLOCATIONS,
-    );
-
-    expect(
-      (await knex('allocator_channel_participants').select('*')).length,
-    ).toEqual(SEEDED_PARTICIPANTS);
+    it('throws when the channel exists', async () => {
+      const theirCommitment = testDataConstructors.pre_fund_setup(0);
+      theirCommitment.channel = funded_channel;
+      const hubCommitment = testDataConstructors.pre_fund_setup(1);
+      expect.assertions(1);
+      await queries
+        .updateAllocatorChannel(theirCommitment, hubCommitment)
+        .catch(err => {
+          expect(err).toMatchObject(errors.CHANNEL_EXISTS);
+        });
+    });
   });
 
-  it.skip("throws when the channel doesn't exist", async () => {
-    expect.assertions(1);
+  describe('when theirCommitment is not a PreFundSetup', () => {
+    it('works when the channel exists', async () => {
+      const { nonce, channelType } = testDataConstructors.post_fund_setup(
+        2,
+      ).channel;
+      const existing_allocator_channel = await AllocatorChannel.query()
+        .where({ nonce, rules_address: channelType })
+        .eager('[commitments.[allocations],participants]')
+        .first();
+
+      expect(existing_allocator_channel).toMatchObject(seeds.funded_channel);
+
+      const updated_allocator_channel = await queries.updateAllocatorChannel(
+        testDataConstructors.post_fund_setup(2),
+        testDataConstructors.post_fund_setup(3),
+      );
+
+      expect(updated_allocator_channel).toMatchObject({
+        ...seeds.funded_channel,
+        commitments: [
+          seedDataConstructors.post_fund_setup(2),
+          seedDataConstructors.post_fund_setup(3),
+        ],
+      });
+
+      expect((await knex('allocator_channels').select('*')).length).toEqual(
+        SEEDED_CHANNELS,
+      );
+      expect(
+        (await knex('allocator_channel_commitments')
+          .where({ allocator_channel_id: updated_allocator_channel.id })
+          .select('*')).length,
+      ).toEqual(2);
+
+      expect((await knex('allocations').select('*')).length).toEqual(
+        SEEDED_ALLOCATIONS,
+      );
+
+      expect(
+        (await knex('allocator_channel_participants').select('*')).length,
+      ).toEqual(SEEDED_PARTICIPANTS);
+    });
+    it("throws when the channel doesn't exist and the commitment is not PreFundSetup", async () => {
+      expect.assertions(1);
+      const theirCommitment = testDataConstructors.post_fund_setup(0);
+      theirCommitment.channel = { ...funded_channel, nonce: 1234 };
+      const hubCommitment = testDataConstructors.post_fund_setup(1);
+      expect.assertions(1);
+      await queries
+        .updateAllocatorChannel(theirCommitment, hubCommitment)
+        .catch(err => {
+          expect(err).toMatchObject(errors.CHANNEL_MISSING);
+        });
+    });
   });
 });

@@ -1,29 +1,22 @@
-export {
-  updateLedgerChannel,
-  openLedgerChannel,
-  channelExists,
-  ChannelResponse
-} from "./services";
-import { Bytes } from "fmg-core";
-import { queries } from "./db/queries/allocator_channels";
-import {
-  channelExists,
-  formResponse,
-  validSignature
-} from "./services/channelManagement";
+export { channelExists, ChannelResponse } from './services';
+import { Bytes } from 'fmg-core';
+import { queries } from './db/queries/allocator_channels';
+import { formResponse, validSignature } from './services/channelManagement';
 
-import errors from "./errors";
+import errors from './errors';
+import { updateLedgerChannel } from './services/ledgerChannelManager';
 export { errors };
 
 export default class Wallet {
-  sanitize: (appAttrs: Bytes) => Bytes;
-  formResponse = formResponse;
+  sanitize: (appAttrs: any) => Bytes;
   validSignature = validSignature;
-  channelExists = channelExists;
-  openChannel = queries.openAllocatorChannel;
   updateChannel = queries.updateAllocatorChannel;
+
+  updateLedgerChannel = updateLedgerChannel;
 
   constructor(sanitizeAppAttrs) {
     this.sanitize = sanitizeAppAttrs;
   }
+
+  formResponse = channel_id => formResponse(channel_id, this.sanitize);
 }

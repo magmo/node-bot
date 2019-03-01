@@ -1,4 +1,4 @@
-import { CommitmentType, Signature } from 'fmg-core';
+import { CommitmentType, recover, Signature, toHex } from 'fmg-core';
 import {
   asCoreCommitment,
   bytesFromAppAttributes,
@@ -11,28 +11,7 @@ import AllocatorChannel from '../models/allocatorChannel';
 import AllocatorChannelCommitment from '../models/allocatorChannelCommitment';
 import * as ChannelManagement from './channelManagement';
 
-// TODO: These should be extracted into a hub app?
-export async function openLedgerChannel(
-  theirCommitment: LedgerCommitment,
-  theirSignature: Signature,
-): Promise<ChannelResponse> {
-  if (await ChannelManagement.channelExists(theirCommitment)) {
-    throw errors.CHANNEL_EXISTS;
-  }
-
-  const coreCommitment = asCoreCommitment(theirCommitment);
-
-  if (!ChannelManagement.validSignature(coreCommitment, theirSignature)) {
-    throw errors.COMMITMENT_NOT_SIGNED;
-  }
-
-  const allocator_channel = await queries.openAllocatorChannel(theirCommitment);
-  return ChannelManagement.formResponse(
-    allocator_channel.id,
-    bytesFromAppAttributes,
-  );
-}
-
+// TODO: This should be extracted into a hub app?
 export async function updateLedgerChannel(
   theirCommitment: LedgerCommitment,
   theirSignature: Signature,
@@ -46,15 +25,14 @@ export async function updateLedgerChannel(
     throw errors.COMMITMENT_NOT_SIGNED;
   }
 
-  if (!(await ChannelManagement.channelExists(theirCommitment))) {
-    throw errors.CHANNEL_MISSING;
-  }
-
   if (!(await valuePreserved(theirCommitment))) {
     throw errors.VALUE_LOST;
   }
 
-  if (!(await validTransition(theirCommitment))) {
+  if (
+    theirCommitment.commitmentType !== CommitmentType.PreFundSetup &&
+    !(await validTransition(theirCommitment))
+  ) {
     throw errors.INVALID_TRANSITION;
   }
 
@@ -96,13 +74,17 @@ export async function validTransition(
   theirCommitment: LedgerCommitment,
 ): Promise<boolean> {
   const { channel } = theirCommitment;
-  const allocator_channel_id = (await AllocatorChannel.query()
+  const allocator_channel = await AllocatorChannel.query()
     .where({ rules_address: channel.channelType, nonce: channel.nonce })
     .select('id')
-    .first()).id;
+    .first();
+
+  if (!allocator_channel) {
+    throw errors.CHANNEL_MISSING;
+  }
 
   const currentCommitment = await AllocatorChannelCommitment.query()
-    .where({ allocator_channel_id })
+    .where({ allocator_channel_id: allocator_channel.id })
     .orderBy('id', 'desc')
     .select()
     .first();

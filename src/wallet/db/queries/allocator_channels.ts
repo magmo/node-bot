@@ -1,11 +1,7 @@
-import {
-  Address,
-  Commitment,
-  CommitmentType,
-  Signature,
-  Uint32,
-} from 'fmg-core';
+import { ethers } from 'ethers';
+import { Address, CommitmentType, Signature, Uint256, Uint32 } from 'fmg-core';
 import { AppCommitment, CommitmentString } from '../../../types';
+import errors from '../../errors';
 import AllocatorChannel from '../../models/allocatorChannel';
 
 export interface CreateAllocatorChannelParams {
@@ -19,60 +15,31 @@ export interface IAllocatorChannel {
 }
 
 export const queries = {
-  openAllocatorChannel,
   updateAllocatorChannel,
 };
-
-async function openAllocatorChannel(theirCommitment: AppCommitment) {
-  const { channel, allocation, destination } = theirCommitment;
-  const { participants, channelType: rules_address, nonce } = channel;
-
-  const allocationByPriority = (priority: number) => ({
-    priority,
-    destination: destination[priority],
-    amount: allocation[priority],
-  });
-
-  const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
-
-  const commitment = (turn_number: Uint32) => ({
-    turn_number,
-    commitment_type: CommitmentType.PreFundSetup,
-    commitment_count: turn_number,
-    allocations: allocations(),
-    app_attrs: theirCommitment.appAttributes,
-  });
-
-  const commitments = [commitment(0), commitment(1)];
-
-  return AllocatorChannel.query()
-    .eager('[commitments, participants]')
-    .insertGraphAndFetch({
-      rules_address,
-      holdings: 0,
-      commitments,
-      nonce,
-      participants: participants.map((address, i) => ({
-        address,
-        priority: i,
-      })),
-    });
-}
 
 async function updateAllocatorChannel(
   theirCommitment: AppCommitment,
   hubCommitment: AppCommitment,
 ) {
   const { channel } = theirCommitment;
-  const { channelType, nonce } = channel;
+  const { channelType: rules_address, nonce, participants } = channel;
 
   const allocator_channel = await AllocatorChannel.query()
-    .where({ nonce, rules_address: channelType })
+    .where({ nonce, rules_address })
     .select('id')
     .first();
 
-  if (!allocator_channel.id) {
-    throw new Error('Channel does not exist');
+  if (
+    allocator_channel &&
+    theirCommitment.commitmentType === CommitmentType.PreFundSetup
+  ) {
+    throw errors.CHANNEL_EXISTS;
+  } else if (
+    !allocator_channel &&
+    theirCommitment.commitmentType !== CommitmentType.PreFundSetup
+  ) {
+    throw errors.CHANNEL_MISSING;
   }
 
   const allocationByPriority = (priority: number, c: AppCommitment) => ({
@@ -96,10 +63,40 @@ async function updateAllocatorChannel(
 
   const commitments = [commitment(theirCommitment), commitment(hubCommitment)];
 
+  interface Upsert {
+    commitments: any[];
+    rules_address: Address;
+    nonce: Uint32;
+    holdings?: Uint256;
+    id?: number;
+    participants?: any[];
+  }
+  let upserts: Upsert = { commitments, rules_address, nonce };
+
+  // For now, we just _assume_ that the channel is fully funded
+  const holdings = allocations(theirCommitment)
+    .map(x => x.amount)
+    .reduce((a, b) =>
+      ethers.utils
+        .bigNumberify(a)
+        .add(ethers.utils.bigNumberify(b))
+        .toHexString(),
+    );
+
+  if (allocator_channel) {
+    upserts = { ...upserts, id: allocator_channel.id };
+  } else {
+    upserts = {
+      ...upserts,
+      participants: participants.map((address, i) => ({
+        address,
+        priority: i,
+      })),
+      holdings,
+    };
+  }
+
   return AllocatorChannel.query()
     .eager('[commitments.[allocations],participants]')
-    .upsertGraphAndFetch({
-      id: allocator_channel.id,
-      commitments,
-    });
+    .upsertGraphAndFetch(upserts);
 }

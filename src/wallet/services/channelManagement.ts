@@ -1,10 +1,8 @@
 import { ChannelResponse } from '.';
 import { HUB_PRIVATE_KEY } from '../../constants';
-import AllocatorChannel from '../models/allocatorChannel';
 import ConsensusCommitment from '../models/allocatorChannelCommitment';
 
 import {
-  BaseCommitment,
   Commitment,
   CommitmentType,
   mover,
@@ -19,21 +17,6 @@ export function validSignature(
   signature: Signature,
 ): boolean {
   return recover(toHex(commitment), signature) === mover(commitment);
-}
-
-export async function channelExists(
-  theirCommitment: BaseCommitment,
-): Promise<boolean> {
-  const { channelType: rules_address, nonce } = theirCommitment.channel;
-  const channel = await AllocatorChannel.query()
-    .where({ rules_address, nonce })
-    .first();
-
-  if (channel) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 export async function formResponse(
