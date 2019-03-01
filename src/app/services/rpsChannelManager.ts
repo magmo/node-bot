@@ -1,102 +1,122 @@
-import { Bytes32, Commitment, CommitmentType, Signature } from 'fmg-core';
-import { ChannelManagement, ChannelResponse, errors } from '../../wallet';
+import { Commitment, CommitmentType, Signature } from 'fmg-core';
+import { ChannelResponse, errors } from '../../wallet';
+import Wallet from '../../wallet';
 import AllocatorChannel from '../../wallet/models/allocatorChannel';
 
-import { queries } from '../../wallet/';
 import AllocatorChannelCommitment from '../../wallet/models/allocatorChannelCommitment';
 import {
   AppAttributes,
-  asCoreCommitment,
+  defaultAppAttrs,
   fromCoreCommitment,
+  generateSalt,
+  hashCommitment,
   Play,
   PositionType,
-  RPSBaseCommitment,
   RPSCommitment,
+  sanitize,
 } from './rps-commitment';
 
-export async function openLedgerChannel(
+const wallet = new Wallet(sanitize);
+
+export async function updateRPSChannel(
   theirCommitment: Commitment,
   theirSignature: Signature,
 ): Promise<ChannelResponse> {
-  if (await ChannelManagement.channelExists(theirCommitment)) {
-    throw errors.CHANNEL_EXISTS;
-  }
-
-  if (!ChannelManagement.validSignature(theirCommitment, theirSignature)) {
+  if (!wallet.validSignature(theirCommitment, theirSignature)) {
     throw errors.COMMITMENT_NOT_SIGNED;
-  }
-
-  const allocator_channel = await queries.openAllocatorChannel(theirCommitment);
-  return ChannelManagement.formResponse(allocator_channel);
-}
-
-export async function updateLedgerChannel(
-  theirCommitment: Commitment,
-  theirSignature: Signature,
-): Promise<ChannelResponse> {
-  if (!ChannelManagement.validSignature(theirCommitment, theirSignature)) {
-    throw errors.COMMITMENT_NOT_SIGNED;
-  }
-
-  if (!(await ChannelManagement.channelExists(theirCommitment))) {
-    throw errors.CHANNEL_MISSING;
   }
 
   if (!(await valuePreserved(theirCommitment))) {
     throw errors.VALUE_LOST;
   }
 
-  if (!(await validTransition(theirCommitment))) {
+  if (
+    theirCommitment.commitmentType !== CommitmentType.PreFundSetup &&
+    !(await validTransition(theirCommitment))
+  ) {
     throw errors.INVALID_TRANSITION;
   }
 
-  const ourCommitment = nextCommitment(theirCommitment);
+  const { channelType: rules_address, nonce } = theirCommitment.channel;
+  const existingChannel = await AllocatorChannel.query()
+    .where({
+      rules_address,
+      nonce,
+    })
+    .eager('commitments')
+    .first();
 
-  const allocator_channel = await queries.updateAllocatorChannel(
-    theirCommitment,
+  const ourLastPosition = existingChannel.commitments[1].app_attrs;
+  const ourPlay = randomPlay();
+
+  const ourCommitment = await nextCommitment(
+    fromCoreCommitment(theirCommitment),
+    {
+      ourLastPosition,
+      ourPlay,
+    },
+  );
+
+  const allocator_channel = await wallet.updateChannel(
+    fromCoreCommitment(theirCommitment),
     ourCommitment,
   );
-  return ChannelManagement.formResponse(allocator_channel);
+  return wallet.formResponse(allocator_channel.id);
 }
 
-export function nextCommitment(theirCommitment: Commitment): Commitment {
+function randomPlay(): Play {
+  return Math.floor(Math.random() * 4 + 1);
+}
+
+interface Opts {
+  ourLastPosition?: AppAttributes;
+  ourPlay?: Play;
+}
+
+export function nextCommitment(
+  theirCommitment: RPSCommitment,
+  opts?: Opts,
+): RPSCommitment {
   if (theirCommitment.commitmentType !== CommitmentType.App) {
-    throw new Error('');
+    throw new Error('Must be an app commitment');
   }
 
-  const ourMove = move(fromCoreCommitment(theirCommitment));
   return {
     ...theirCommitment,
     turnNum: theirCommitment.turnNum + 1,
     commitmentCount: 0,
-    appAttributes: asCoreCommitment(ourMove).appAttributes,
+    appAttributes: move(theirCommitment.appAttributes, opts),
   };
 }
 
-function move(theirPosition: AppAttributes): AppAttributes {
+function move(theirPosition: AppAttributes, opts?: Opts): AppAttributes {
   switch (theirPosition.positionType) {
     case PositionType.Resting:
-      const salt = '0xabc';
-      const ourPlay = Play.Paper;
+      const salt = generateSalt();
       return {
-        stake: theirPosition.stake,
         positionType: PositionType.Proposed,
+        stake: theirPosition.stake,
         salt,
-        preCommit: preCommit(ourPlay, salt),
-        aPlay: Play.None,
+        preCommit: hashCommitment(opts.ourPlay, salt),
+        aPlay: opts.ourPlay,
         bPlay: Play.None,
       };
     case PositionType.Proposed:
-      return theirPosition;
+      return {
+        ...theirPosition,
+        positionType: PositionType.Accepted,
+        bPlay: opts.ourPlay,
+      };
     case PositionType.Accepted:
-      return theirPosition;
+      return {
+        ...theirPosition,
+        positionType: PositionType.Reveal,
+        aPlay: opts.ourLastPosition.aPlay,
+        salt: opts.ourLastPosition.salt,
+      };
     case PositionType.Reveal:
-      return theirPosition;
+      return defaultAppAttrs(theirPosition.stake);
   }
-}
-
-function preCommit(play: Play, salt: Bytes32): Bytes32 {
-  return salt;
 }
 
 export async function valuePreserved(theirCommitment: any): Promise<boolean> {
@@ -107,13 +127,17 @@ export async function validTransition(
   theirCommitment: Commitment,
 ): Promise<boolean> {
   const { channel } = theirCommitment;
-  const allocator_channel_id = (await AllocatorChannel.query()
+  const allocator_channel = await AllocatorChannel.query()
     .where({ rules_address: channel.channelType, nonce: channel.nonce })
     .select('id')
-    .first()).id;
+    .first();
+
+  if (!allocator_channel) {
+    throw errors.CHANNEL_MISSING;
+  }
 
   const currentCommitment = await AllocatorChannelCommitment.query()
-    .where({ allocator_channel_id })
+    .where({ allocator_channel_id: allocator_channel.id })
     .orderBy('id', 'desc')
     .select()
     .first();
