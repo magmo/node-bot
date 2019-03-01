@@ -6,7 +6,7 @@ import {
   bytesFromAppAttributes,
 } from '../../../../minimal_viable_force_move_games/packages/fmg-nitro-adjudicator/lib';
 import Wallet, { errors } from '../../wallet';
-export const BASE_URL = `/api/v1/allocator_channels`;
+export const BASE_URL = `/api/v1/ledger_channels`;
 
 const router = new Router();
 
@@ -69,4 +69,4 @@ router.post(`${BASE_URL}`, koaBody(), async ctx => {
   }
 });
 
-export const allocatorChannelRoutes = router.routes();
+export const ledgerChannelRoutes = router.routes();
