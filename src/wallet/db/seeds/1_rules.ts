@@ -4,9 +4,11 @@ import Rule from '../../models/rule';
 import knex from '../connection';
 Model.knex(knex);
 
-export async function seed() {
+export function seed() {
   // Deletes ALL existing entries
-  await knex('rules').del();
-
-  await Rule.query().insert({ address: DUMMY_RULES_ADDRESS });
+  return knex('rules')
+    .del()
+    .then(() => {
+      return Rule.query().insert({ address: DUMMY_RULES_ADDRESS });
+    });
 }

@@ -1,13 +1,22 @@
-import { CommitmentType } from 'fmg-core';
+import { CommitmentType, toUint256 } from 'fmg-core';
 import { Model } from 'objection';
+import {
+  Play,
+  PositionType,
+  RPSAppAttributes,
+  zeroBytes32,
+} from '../../../app/services/rps-commitment';
 import {
   ALLOCATION,
   BEGINNING_APP_CHANNEL_HOLDINGS,
   BEGINNING_APP_CHANNEL_NONCE,
+  BEGINNING_RPS_APP_CHANNEL_NONCE,
   DESTINATION,
   DUMMY_RULES_ADDRESS,
   FUNDED_CHANNEL_HOLDINGS,
   FUNDED_CHANNEL_NONCE,
+  FUNDED_RPS_CHANNEL_HOLDINGS,
+  FUNDED_RPS_CHANNEL_NONCE,
   HUB_ADDRESS,
   ONGOING_APP_CHANNEL_HOLDINGS,
   ONGOING_APP_CHANNEL_NONCE,
@@ -22,20 +31,6 @@ const participants = [
   { address: HUB_ADDRESS, priority: 1 },
 ];
 
-const channel_1 = {
-  rules_address: DUMMY_RULES_ADDRESS,
-  nonce: 1,
-  holdings: '0x00',
-  participants,
-};
-
-const channel_2 = {
-  rules_address: DUMMY_RULES_ADDRESS,
-  nonce: 2,
-  holdings: '0x00',
-  participants,
-};
-
 const allocationByPriority = (priority: number) => ({
   priority,
   destination: DESTINATION[priority],
@@ -43,7 +38,11 @@ const allocationByPriority = (priority: number) => ({
 });
 
 const allocations = () => [allocationByPriority(0), allocationByPriority(1)];
-const app_attrs = (n: number) => ({
+// ***************
+// Ledger channels
+// ***************
+
+const ledger_app_attrs = (n: number) => ({
   consensusCounter: n,
   proposedAllocation: ALLOCATION,
   proposedDestination: DESTINATION,
@@ -55,7 +54,7 @@ function pre_fund_setup(turn_number: number) {
     commitment_type: CommitmentType.PreFundSetup,
     commitment_count: turn_number,
     allocations: allocations(),
-    app_attrs: app_attrs(0),
+    app_attrs: ledger_app_attrs(0),
   };
 }
 
@@ -73,7 +72,7 @@ function post_fund_setup(turn_number: number) {
     commitment_type: CommitmentType.PostFundSetup,
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
-    app_attrs: app_attrs(0),
+    app_attrs: ledger_app_attrs(0),
   };
 }
 
@@ -91,7 +90,7 @@ function app(turn_number: number) {
     commitment_type: CommitmentType.PostFundSetup,
     commitment_count: turn_number % funded_channel.participants.length,
     allocations: allocations(),
-    app_attrs: app_attrs(turn_number % participants.length),
+    app_attrs: ledger_app_attrs(turn_number % participants.length),
   };
 }
 
@@ -103,17 +102,71 @@ const ongoing_app_phase_channel = {
   participants,
 };
 
+// ************
+// RPS channels
+// ************
+
+function rps_app_attrs(n: number): RPSAppAttributes {
+  return {
+    stake: toUint256(10),
+    positionType: PositionType.Resting,
+    aPlay: Play.None,
+    bPlay: Play.None,
+    preCommit: zeroBytes32,
+    salt: zeroBytes32,
+  };
+}
+
+function rps_pre_fund_setup(turn_number: number) {
+  return {
+    turn_number,
+    commitment_type: CommitmentType.PreFundSetup,
+    commitment_count: turn_number,
+    allocations: allocations(),
+    app_attrs: rps_app_attrs(0),
+  };
+}
+
+const funded_rps_channel = {
+  rules_address: DUMMY_RULES_ADDRESS,
+  nonce: FUNDED_RPS_CHANNEL_NONCE,
+  holdings: FUNDED_RPS_CHANNEL_HOLDINGS,
+  commitments: [rps_pre_fund_setup(0), rps_pre_fund_setup(1)],
+  participants,
+};
+
+function rps_post_fund_setup(turn_number: number) {
+  return {
+    turn_number,
+    commitment_type: CommitmentType.PostFundSetup,
+    commitment_count: turn_number % funded_channel.participants.length,
+    allocations: allocations(),
+    app_attrs: rps_app_attrs(0),
+  };
+}
+
+const beginning_app_phase_rps_channel = {
+  rules_address: DUMMY_RULES_ADDRESS,
+  nonce: BEGINNING_RPS_APP_CHANNEL_NONCE,
+  holdings: BEGINNING_APP_CHANNEL_HOLDINGS,
+  commitments: [rps_post_fund_setup(2), rps_post_fund_setup(3)],
+  participants,
+};
+
+// *******
+// Exports
+// *******
+
 export const seeds = {
-  channel_1,
-  channel_2,
   funded_channel,
   beginning_app_phase_channel,
   ongoing_app_phase_channel,
+  funded_rps_channel,
+  beginning_app_phase_rps_channel,
 };
 
-export async function seed() {
-  await knex('allocator_channels').del();
-  await AllocatorChannel.query().insertGraph(Object.values(seeds));
+export function seed() {
+  return AllocatorChannel.query().insertGraph(Object.values(seeds));
 }
 
 export const constructors = {
