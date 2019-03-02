@@ -31,6 +31,21 @@ module.exports = {
     migrations: {
       directory: path.join(BASE_PATH, 'migrations'),
       extensions: [
+        "ts"
+      ]
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds')
+    },
+    debug: process.env.DEBUG_KNEX === 'TRUE',
+  },
+
+  production: {
+    client: 'pg',
+    connection: CONN_STRING,
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+      extensions: [
         "js"
       ]
     },
