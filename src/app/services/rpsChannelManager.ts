@@ -5,13 +5,13 @@ import AllocatorChannel from '../../wallet/models/allocatorChannel';
 
 import AllocatorChannelCommitment from '../../wallet/models/allocatorChannelCommitment';
 import {
-  AppAttributes,
   defaultAppAttrs,
   fromCoreCommitment,
   generateSalt,
   hashCommitment,
   Play,
   PositionType,
+  RPSAppAttributes,
   RPSCommitment,
   sanitize,
 } from './rps-commitment';
@@ -37,6 +37,10 @@ export async function updateRPSChannel(
     throw errors.INVALID_TRANSITION;
   }
 
+  if (theirCommitment.commitmentType === CommitmentType.PreFundSetup) {
+    return await openChannel(theirCommitment);
+  }
+
   const { channelType: rules_address, nonce } = theirCommitment.channel;
   const existingChannel = await AllocatorChannel.query()
     .where({
@@ -47,7 +51,8 @@ export async function updateRPSChannel(
     .first();
 
   const ourLastPosition = existingChannel.commitments[1].app_attrs;
-  const ourPlay = randomPlay();
+  // TODO: How can we test the manager, while having a randomized play strategy?
+  const ourPlay = Play.Rock;
 
   const ourCommitment = await nextCommitment(
     fromCoreCommitment(theirCommitment),
@@ -64,12 +69,25 @@ export async function updateRPSChannel(
   return wallet.formResponse(allocator_channel.id);
 }
 
+async function openChannel(theirCommitment: Commitment) {
+  const ourCommitment = await nextCommitment(
+    fromCoreCommitment(theirCommitment),
+  );
+
+  const allocator_channel = await wallet.updateChannel(
+    fromCoreCommitment(theirCommitment),
+    ourCommitment,
+  );
+
+  return await wallet.formResponse(allocator_channel.id);
+}
+
 function randomPlay(): Play {
   return Math.floor(Math.random() * 4 + 1);
 }
 
 interface Opts {
-  ourLastPosition?: AppAttributes;
+  ourLastPosition?: RPSAppAttributes;
   ourPlay?: Play;
 }
 
@@ -78,7 +96,7 @@ export function nextCommitment(
   opts?: Opts,
 ): RPSCommitment {
   if (theirCommitment.commitmentType !== CommitmentType.App) {
-    throw new Error('Must be an app commitment');
+    return wallet.nextCommitment(theirCommitment);
   }
 
   return {
@@ -89,7 +107,7 @@ export function nextCommitment(
   };
 }
 
-function move(theirPosition: AppAttributes, opts?: Opts): AppAttributes {
+function move(theirPosition: RPSAppAttributes, opts?: Opts): RPSAppAttributes {
   switch (theirPosition.positionType) {
     case PositionType.Resting:
       const salt = generateSalt();
