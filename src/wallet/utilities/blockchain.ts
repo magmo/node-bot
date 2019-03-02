@@ -1,6 +1,6 @@
-import * as CommitmentArtifact from '../../../build/contracts/Commitment.json';
-import * as nitroAdjudicatorArtifact from '../../../build/contracts/NitroAdjudicator.json';
-import * as RulesArtifact from '../../../build/contracts/Rules.json';
+import * as CommitmentArtifact from '../../../contracts/prebuilt_contracts/Commitment.json';
+import * as nitroAdjudicatorArtifact from '../../../contracts/prebuilt_contracts/NitroAdjudicator.json';
+import * as RulesArtifact from '../../../contracts/prebuilt_contracts/Rules.json';
 
 import { ContractFactory, providers } from 'ethers';
 import { getNetworkId, linkedByteCode } from 'magmo-devtools';
