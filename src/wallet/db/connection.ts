@@ -5,7 +5,7 @@ dotenvConfig();
 
 const environment = process.env.NODE_ENV || 'development';
 // tslint:disable-next-line:no-var-requires
-const config = require('../../../knexfile')[environment];
+const config = require('../../../knexfile.js')[environment];
 
 const knex = Knex(config);
 
