@@ -33,7 +33,6 @@ router.post(`${BASE_URL}`, koaBody(), async ctx => {
       ctx.status = 201;
       ctx.body = body;
     } else {
-      console.log(commitment);
       ctx.status = 400;
       ctx.body = {
         status: 'error',
