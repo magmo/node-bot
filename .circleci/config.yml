@@ -51,4 +51,8 @@ jobs:
             done
             echo Failed waiting for Postgres && exit 1
 
+      - run:
+          name: Compile contracts
+          command: |
+            npx truffle compile
       - run: yarn test
