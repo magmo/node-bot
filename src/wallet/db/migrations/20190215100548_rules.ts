@@ -11,6 +11,10 @@ exports.up = (knex: Knex) => {
         .string('address')
         .notNullable()
         .unique();
+      table
+        .string('name')
+        .notNullable()
+        .unique();
     })
     .then(() => {
       return addAddressCheck(knex, TABLE_NAME, 'address');
