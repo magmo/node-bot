@@ -5,7 +5,11 @@ const env = require('dotenv').config();
 let dotenvExpand = require('dotenv-expand');
 dotenvExpand(env);
 
-const BASE_PATH = path.join(__dirname, 'src', 'wallet', 'db');
+const sourceDirectory = 'src';
+if (process.env.NODE_ENV === 'production') {
+  sourceDirectory = 'lib';
+}
+const BASE_PATH = path.join(__dirname, sourceDirectory, 'wallet', 'db');
 const CONN_STRING = `${process.env.SERVER_WALLET_DB_CONN_STRING}/${process.env.SERVER_WALLET_DB_NAME}`;
 
 module.exports = {
@@ -32,6 +36,21 @@ module.exports = {
       directory: path.join(BASE_PATH, 'migrations'),
       extensions: [
         "ts"
+      ]
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds')
+    },
+    debug: process.env.DEBUG_KNEX === 'TRUE',
+  },
+
+  production: {
+    client: 'pg',
+    connection: CONN_STRING,
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+      extensions: [
+        "js"
       ]
     },
     seeds: {
