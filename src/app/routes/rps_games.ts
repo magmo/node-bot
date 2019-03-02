@@ -4,8 +4,8 @@ import * as Router from 'koa-router';
 import Wallet from '../../wallet';
 export const BASE_URL = `/api/v1/rps_games`;
 import { Address, Uint256 } from 'fmg-core';
-import * as artifact from '../../../contracts/prebuilt_contracts/RockPaperScissorsGame.json';
 import { HUB_ADDRESS } from '../../constants';
+import * as artifact from '../../contracts/prebuilt_contracts/RockPaperScissorsGame.json';
 
 const router = new Router();
 

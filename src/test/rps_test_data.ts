@@ -18,7 +18,7 @@ import {
   RPSAppAttributes,
   RPSCommitment,
   sanitize,
-} from '../src/app/services/rps-commitment';
+} from '../app/services/rps-commitment';
 import {
   ALLOCATION,
   BEGINNING_RPS_APP_CHANNEL_NONCE,
@@ -27,7 +27,7 @@ import {
   FUNDED_RPS_CHANNEL_NONCE,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
-} from '../src/constants';
+} from '../constants';
 import { default_channel } from './test_data';
 
 // Commitment Constructors

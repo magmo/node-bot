@@ -1,15 +1,15 @@
 import { errors } from '../../..';
 import {
-  constructors as testDataConstructors,
-  created_channel,
-  funded_channel,
-} from '../../../../../test/test_data';
-import {
   SEEDED_ALLOCATIONS,
   SEEDED_CHANNELS,
   SEEDED_COMMITMENTS,
   SEEDED_PARTICIPANTS,
 } from '../../../../constants';
+import {
+  constructors as testDataConstructors,
+  created_channel,
+  funded_channel,
+} from '../../../../test/test_data';
 import AllocatorChannel from '../../../models/allocatorChannel';
 import knex from '../../connection';
 import {

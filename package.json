@@ -2,7 +2,7 @@
   "name": "rps-autoplayer",
   "version": "0.0.1",
   "description": "hub prototype",
-  "main": "index.ts",
+  "main": "lib/index.js",
   "scripts": {
     "db:drop": "dropdb server_wallet_${NODE_ENV}",
     "db:create": "createdb server_wallet_${NODE_ENV}",

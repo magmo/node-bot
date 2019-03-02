@@ -1,9 +1,9 @@
 process.env.NODE_ENV = 'test';
 
 import * as supertest from 'supertest';
-import * as rpsArtifact from '../../contracts/prebuilt_contracts/RockPaperScissorsGame.json';
 import app from '../../src/app/app';
 import { HUB_ADDRESS } from '../../src/constants';
+import * as rpsArtifact from '../../src/contracts/prebuilt_contracts/RockPaperScissorsGame.json';
 
 const BASE_URL = '/api/v1/rps_games';
 
