@@ -3,8 +3,8 @@ import {
   constructors as testDataConstructors,
   funded_channel,
 } from '../../../test/test_data';
-import { LedgerCommitment } from '../../types';
 import AllocatorChannel from '../models/allocatorChannel';
+import { LedgerCommitment } from '../services/ledger-commitment';
 
 process.env.NODE_ENV = 'test';
 

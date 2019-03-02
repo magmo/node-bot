@@ -2,7 +2,6 @@ process.env.NODE_ENV = 'test';
 
 import * as supertest from 'supertest';
 import app from '../../src/app/app';
-import { decodeAppAttributes } from '../../src/app/services/rps-commitment';
 import errors from '../../src/wallet/errors';
 import {
   invalid_open_channel_params,

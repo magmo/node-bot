@@ -4,7 +4,7 @@ import * as Router from 'koa-router';
 import {
   appAttributesFromBytes,
   bytesFromAppAttributes,
-} from '../../../../minimal_viable_force_move_games/packages/fmg-nitro-adjudicator/lib';
+} from 'fmg-nitro-adjudicator';
 import Wallet, { errors } from '../../wallet';
 export const BASE_URL = `/api/v1/ledger_channels`;
 
