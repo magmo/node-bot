@@ -20,8 +20,10 @@ $ yarn watch-server (will rebuild app on file change)
 
 // Opening a channel using the `open_channel_params` from `test_data.ts`:
 
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat open_channel.sample.json)" http://localhost:3000/api/v1/ledger_channels
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.ledger.json)" http://localhost:3000/api/v1/ledger_channels
+
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
 ```
 
 ## Testing
