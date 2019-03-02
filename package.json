@@ -13,7 +13,7 @@
     "watch-server": "SERVER_WALLET_DB_NAME=server_wallet_development nodemon --watch 'src/**/*' -e ts,tsx --exec ts-node ./src/app/server.ts",
     "build": "npx tsc",
     "start": "node ./lib/app/server.js",
-    "prestart": "./node_modules/.bin/knex migrate:latest && ./node_modules/.bin/knex seed:run",
+    "prestart": "npm run db:drop && npm run db:create && npm run db:migrate && npm run db:seed",
     "postinstall": "npm run build"
   },
   "author": "",
