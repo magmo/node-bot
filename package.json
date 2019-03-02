@@ -1,5 +1,5 @@
 {
-  "name": "koa-typescript-json-api",
+  "name": "rps-autoplayer",
   "version": "0.0.1",
   "description": "hub prototype",
   "main": "index.ts",
