@@ -2,14 +2,14 @@ process.env.NODE_ENV = 'test';
 
 import * as supertest from 'supertest';
 import app from '../../src/app/app';
-import errors from '../../src/wallet/errors';
 import {
   invalid_open_channel_params,
   open_channel_params,
   post_fund_setup_1_response,
   pre_fund_setup_1_response,
   update_channel_params,
-} from '../../test/rps_test_data';
+} from '../../src/test/rps_test_data';
+import errors from '../../src/wallet/errors';
 
 const BASE_URL = '/api/v1/rps_channels';
 

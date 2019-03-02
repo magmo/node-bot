@@ -1,18 +1,18 @@
 import { Bytes, sign, Signature, toHex } from 'fmg-core';
 import {
-  app_1_response,
-  beginning_app_phase_channel,
-  constructors as testDataConstructors,
-  post_fund_setup_1_response,
-  pre_fund_setup_1_response,
-} from '../../../../test/test_data';
-import {
   DUMMY_RULES_ADDRESS,
   FUNDED_CHANNEL_NONCE,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
   UNKNOWN_RULES_ADDRESS,
 } from '../../../constants';
+import {
+  app_1_response,
+  beginning_app_phase_channel,
+  constructors as testDataConstructors,
+  post_fund_setup_1_response,
+  pre_fund_setup_1_response,
+} from '../../../test/test_data';
 import errors from '../../errors';
 import * as ChannelManagement from '../channelManagement';
 import { asCoreCommitment, LedgerCommitment } from '../ledger-commitment';

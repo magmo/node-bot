@@ -2,7 +2,7 @@ import Wallet from '..';
 import {
   constructors as testDataConstructors,
   funded_channel,
-} from '../../../test/test_data';
+} from '../../test/test_data';
 import AllocatorChannel from '../models/allocatorChannel';
 import { LedgerCommitment } from '../services/ledger-commitment';
 

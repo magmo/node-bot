@@ -7,14 +7,6 @@ import {
   toUint256,
 } from 'fmg-core';
 import {
-  app_response,
-  beginning_app_phase_rps_channel,
-  constructors,
-  funded_rps_channel,
-  pre_fund_setup_1_response,
-} from '../../../../test/rps_test_data';
-import { default_channel } from '../../../../test/test_data';
-import {
   ALLOCATION,
   DESTINATION,
   DUMMY_RULES_ADDRESS,
@@ -23,6 +15,14 @@ import {
   PARTICIPANTS,
   UNKNOWN_RULES_ADDRESS,
 } from '../../../constants';
+import {
+  app_response,
+  beginning_app_phase_rps_channel,
+  constructors,
+  funded_rps_channel,
+  pre_fund_setup_1_response,
+} from '../../../test/rps_test_data';
+import { default_channel } from '../../../test/test_data';
 import { errors } from '../../../wallet';
 import { validSignature } from '../../../wallet/services/channelManagement';
 import {

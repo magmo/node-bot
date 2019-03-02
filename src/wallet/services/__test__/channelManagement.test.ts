@@ -1,10 +1,10 @@
 import { Bytes, sign, Signature, toHex } from 'fmg-core';
 import { bytesFromAppAttributes } from 'fmg-nitro-adjudicator';
+import { HUB_PRIVATE_KEY } from '../../../constants';
 import {
   constructors as testDataConstructors,
   funded_channel,
-} from '../../../../test/test_data';
-import { HUB_PRIVATE_KEY } from '../../../constants';
+} from '../../../test/test_data';
 import { seeds } from '../../db/seeds/2_allocator_channels_seed';
 import AllocatorChannel from '../../models/allocatorChannel';
 import * as ChannelManagement from '../channelManagement';
