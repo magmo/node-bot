@@ -4,6 +4,10 @@
 
 The simplest way to get this going on a mac is to install the [postgres app](https://postgresapp.com)
 
+### heroku
+
+https://devcenter.heroku.com/articles/heroku-cli
+
 ### .env
 
 Copy `.env.example` to `.env`, and make it your own.
@@ -32,4 +36,16 @@ $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" 
 yarn install
 NODE_ENV=test yarn db:create
 yarn test
+```
+
+## Deploying
+
+Heroku is configured to automatically deploy from the watched `deploy` branch.
+To run a test deploy, run
+
+```
+ // only needs to be run once to create a local "production" database
+$ NODE_ENV=production yarn db:create
+// Starts a local server serving the app
+$ NODE_ENV=production heroku local
 ```
