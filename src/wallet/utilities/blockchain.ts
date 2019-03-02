@@ -2,37 +2,42 @@ import * as CommitmentArtifact from '../../../contracts/prebuilt_contracts/Commi
 import * as nitroAdjudicatorArtifact from '../../../contracts/prebuilt_contracts/NitroAdjudicator.json';
 import * as RulesArtifact from '../../../contracts/prebuilt_contracts/Rules.json';
 
-import { ContractFactory, providers } from 'ethers';
-import { getNetworkId, linkedByteCode } from 'magmo-devtools';
+import { ContractFactory, ethers, providers } from 'ethers';
+import { linkedByteCode } from 'magmo-devtools';
+import { HUB_PRIVATE_KEY } from '../../constants';
 
-// TODO: This provider is obviously a local provider.
-// We should set the provider to connect to ganache or infura,
-// based on the NODE_ENV variable.
-const provider = new providers.JsonRpcProvider(
-  `http://${process.env.DEV_GANACHE_HOST}:${process.env.DEV_GANACHE_PORT}`,
-);
-const providerSigner = provider.getSigner();
+const provider = new providers.JsonRpcProvider(process.env.JSON_RPS_ENDPOINT);
+const walletWithProvider = new ethers.Wallet(HUB_PRIVATE_KEY, provider);
 
 export async function nitroAdjudicator() {
   return setupContract(nitroAdjudicatorArtifact);
 }
 
 async function setupContract(artifact: any) {
-  const networkId = await getNetworkId();
-
   Object.defineProperty(artifact, 'bytecode', {
-    value: linkedByteCode(artifact, CommitmentArtifact, networkId),
+    value: linkedByteCode(artifact, CommitmentArtifact, process.env.NETWORK_ID),
   });
   Object.defineProperty(artifact, 'bytecode', {
-    value: linkedByteCode(artifact, RulesArtifact, networkId),
+    value: linkedByteCode(artifact, RulesArtifact, process.env.NETWORK_ID),
   });
 
-  const nitroFactory = await ContractFactory.fromSolidity(
-    artifact,
-    providerSigner,
-  );
+  let nitroFactory;
+  try {
+    nitroFactory = await ContractFactory.fromSolidity(
+      artifact,
+      walletWithProvider,
+    );
+  } catch (err) {
+    if (err.message.match('bytecode must be a valid hex string')) {
+      throw new Error(
+        `Contract not deployed on network ${process.env.NETWORK_ID}`,
+      );
+    }
+
+    throw err;
+  }
   const contract = await nitroFactory.attach(
-    artifact.networks[networkId].address,
+    artifact.networks[process.env.NETWORK_ID].address,
   );
 
   return contract;
