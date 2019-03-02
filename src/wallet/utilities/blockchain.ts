@@ -4,7 +4,7 @@ import * as RulesArtifact from '../../../build/contracts/Rules.json';
 */
 
 import { ContractFactory, providers } from "ethers";
-//import { getNetworkId, linkedByteCode, } from "magmo-devtools";
+import { getNetworkId, linkedByteCode, } from "magmo-devtools";
 
 // TODO: This provider is obviously a local provider.
 // We should set the provider to connect to ganache or infura, 
@@ -18,7 +18,7 @@ export async function nitroAdjudicator() {
 }
 
 async function setupContract(artifact: any) {
-  //const networkId = await getNetworkId();
+  const networkId = await getNetworkId();
 
   /*Object.defineProperty(
     artifact,
