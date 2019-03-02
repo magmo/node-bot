@@ -5,7 +5,7 @@ const env = require('dotenv').config();
 let dotenvExpand = require('dotenv-expand');
 dotenvExpand(env);
 
-const sourceDirectory = 'src';
+let sourceDirectory = 'src';
 if (process.env.NODE_ENV === 'production') {
   sourceDirectory = 'lib';
 }
