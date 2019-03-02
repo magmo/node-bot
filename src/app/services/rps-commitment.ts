@@ -1,17 +1,15 @@
-import { randomBytes } from 'crypto';
 import {
   BaseCommitment,
   Bytes,
   Bytes32,
   Commitment,
-  CommitmentType,
   Uint256,
   Uint8,
 } from 'fmg-core';
 import * as abi from 'web3-eth-abi';
 import { soliditySha3 } from 'web3-utils';
 
-export interface AppAttributes {
+export interface RPSAppAttributes {
   positionType: Uint8;
   stake: Uint256;
   preCommit: Bytes32;
@@ -36,6 +34,7 @@ export enum PositionType {
   Accepted,
   Reveal,
 }
+
 export enum Play {
   None,
   Rock,
@@ -44,10 +43,10 @@ export enum Play {
 }
 
 export interface RPSCommitment extends BaseCommitment {
-  appAttributes: AppAttributes;
+  appAttributes: RPSAppAttributes;
 }
 
-export function sanitize(appAttrs: AppAttributes): Bytes {
+export function sanitize(appAttrs: RPSAppAttributes): Bytes {
   // TODO sanitize plays and salt
   const sanitizedAttrs = { ...appAttrs };
   if (appAttrs.positionType === PositionType.Proposed) {
@@ -58,7 +57,7 @@ export function sanitize(appAttrs: AppAttributes): Bytes {
   return encodeAppAttributes(sanitizedAttrs);
 }
 
-export function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
+export function encodeAppAttributes(appAttrs: RPSAppAttributes): Bytes {
   const { positionType, stake, preCommit, bPlay, aPlay, salt } = appAttrs;
   return abi.encodeParameter(SolidityRPSCommitmentType, [
     positionType,
@@ -70,14 +69,14 @@ export function encodeAppAttributes(appAttrs: AppAttributes): Bytes {
   ]);
 }
 
-export function decodeAppAttributes(appAttrs: string): AppAttributes {
+export function decodeAppAttributes(appAttrs: string): RPSAppAttributes {
   const parameters = abi.decodeParameter(SolidityRPSCommitmentType, appAttrs);
   return {
-    positionType: parameters[0] as PositionType,
+    positionType: parseInt(parameters[0], 10),
     stake: parameters[1],
     preCommit: parameters[2],
-    bPlay: parameters[3] as Play,
-    aPlay: parameters[4] as Play,
+    bPlay: parseInt(parameters[3], 10),
+    aPlay: parseInt(parameters[4], 10),
     salt: parameters[5],
   };
 }
@@ -97,7 +96,7 @@ export function asCoreCommitment(rpsCommitment: RPSCommitment): Commitment {
 }
 
 export const zeroBytes32: Bytes32 = '0x' + '0'.repeat(64);
-export function defaultAppAttrs(stake): AppAttributes {
+export function defaultAppAttrs(stake): RPSAppAttributes {
   return {
     stake,
     positionType: 0,
