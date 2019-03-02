@@ -171,8 +171,7 @@ describe('updateRPSChannel', () => {
         theirSignature,
       );
 
-      const app_attrs = decodeAppAttributes(pre_fund_setup_0.appAttributes);
-      expect(commitment).toMatchObject(pre_fund_setup_1_response(app_attrs));
+      expect(commitment).toMatchObject(pre_fund_setup_1_response);
       expect(validSignature(commitment, signature)).toBe(true);
     });
 
