@@ -23,7 +23,7 @@ $ yarn watch-server (will rebuild app on file change)
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.ledger.json)" http://localhost:3000/api/v1/ledger_channels
 
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/update_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
 ```
 
 ## Testing
