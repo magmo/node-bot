@@ -12,11 +12,11 @@ import {
   PARTICIPANT_ADDRESS,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
-} from '../src/constants';
+} from '../constants';
 import {
   asCoreCommitment,
   LedgerCommitment,
-} from '../src/wallet/services/ledger-commitment';
+} from '../wallet/services/ledger-commitment';
 
 export const default_channel: Channel = {
   channelType: DUMMY_RULES_ADDRESS,
