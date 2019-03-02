@@ -1,9 +1,13 @@
-import { Commitment, CommitmentType, Signature } from 'fmg-core';
+import { Commitment, CommitmentType, Signature, Uint256 } from 'fmg-core';
 import { ChannelResponse, errors } from '../../wallet';
 import Wallet from '../../wallet';
 import AllocatorChannel from '../../wallet/models/allocatorChannel';
 
+import { ethers } from 'ethers';
+import { channelID } from 'fmg-core/lib/channel';
+import { HUB_ADDRESS } from '../../constants';
 import AllocatorChannelCommitment from '../../wallet/models/allocatorChannelCommitment';
+import { Blockchain } from '../../wallet/services/blockchain';
 import {
   defaultAppAttrs,
   fromCoreCommitment,
@@ -69,10 +73,26 @@ export async function updateRPSChannel(
   return wallet.formResponse(allocator_channel.id);
 }
 
+function add(a: Uint256, b: Uint256): Uint256 {
+  return ethers.utils
+    .bigNumberify(a)
+    .add(ethers.utils.bigNumberify(b))
+    .toHexString();
+}
+
 async function openChannel(theirCommitment: Commitment) {
   const ourCommitment = await nextCommitment(
     fromCoreCommitment(theirCommitment),
   );
+
+  if (process.env.NODE_ENV === 'production') {
+    // TODO: Figure out how to test this.
+    const funding =
+      theirCommitment.allocation[
+        theirCommitment.destination.indexOf(HUB_ADDRESS)
+      ];
+    Blockchain.fund(channelID(theirCommitment.channel), funding);
+  }
 
   const allocator_channel = await wallet.updateChannel(
     fromCoreCommitment(theirCommitment),
