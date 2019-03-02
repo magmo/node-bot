@@ -1,17 +1,41 @@
-import { BaseCommitment, Bytes32, CommitmentType, Uint256 } from 'fmg-core';
 import {
-  AppAttributes,
+  BaseCommitment,
+  Bytes32,
+  Channel,
+  Commitment,
+  CommitmentType,
+  sign,
+  toHex,
+  toUint256,
+  Uint256,
+} from 'fmg-core';
+import {
+  asCoreCommitment,
+  encodeAppAttributes,
   generateSalt,
   hashCommitment,
   Play,
   PositionType,
+  RPSAppAttributes,
   RPSCommitment,
+  sanitize,
 } from '../src/app/services/rps-commitment';
+import {
+  ALLOCATION,
+  BEGINNING_RPS_APP_CHANNEL_NONCE,
+  DESTINATION,
+  DUMMY_RULES_ADDRESS,
+  FUNDED_RPS_CHANNEL_NONCE,
+  PARTICIPANT_ADDRESS,
+  PARTICIPANT_PRIVATE_KEY,
+  PARTICIPANTS,
+} from '../src/constants';
+import { default_channel } from './test_data';
 
 // Commitment Constructors
 // =====================
 
-export interface BaseWithBuyInParams extends BaseCommitment {
+export interface BaseWithStake extends BaseCommitment {
   stake: Uint256;
 }
 
@@ -35,7 +59,7 @@ function base(obj: BaseCommitment): BaseCommitment {
 }
 
 const zeroBytes32: Bytes32 = '0x' + '0'.repeat(64);
-function defaultAppAttrs(stake): AppAttributes {
+function defaultAppAttrs(stake): RPSAppAttributes {
   return {
     stake,
     positionType: 0,
@@ -46,7 +70,7 @@ function defaultAppAttrs(stake): AppAttributes {
   };
 }
 
-function preFundSetupA(obj: BaseWithBuyInParams): RPSCommitment {
+function preFundSetupA(obj: BaseWithStake): RPSCommitment {
   return {
     ...base(obj),
     commitmentCount: 0,
@@ -55,7 +79,7 @@ function preFundSetupA(obj: BaseWithBuyInParams): RPSCommitment {
   };
 }
 
-function preFundSetupB(obj: BaseWithBuyInParams): RPSCommitment {
+function preFundSetupB(obj: BaseWithStake): RPSCommitment {
   return {
     ...base(obj),
     commitmentCount: 1,
@@ -64,32 +88,34 @@ function preFundSetupB(obj: BaseWithBuyInParams): RPSCommitment {
   };
 }
 
-function postFundSetupA(obj: BaseWithBuyInParams): RPSCommitment {
+function postFundSetupA(obj: BaseWithStake): RPSCommitment {
   return {
     ...base(obj),
     commitmentCount: 0,
+    turnNum: 2,
     commitmentType: CommitmentType.PostFundSetup,
     appAttributes: defaultAppAttrs(obj.stake),
   };
 }
 
-function postFundSetupB(obj: BaseWithBuyInParams): RPSCommitment {
+function postFundSetupB(obj: BaseWithStake): RPSCommitment {
   return {
     ...base(obj),
     commitmentCount: 1,
+    turnNum: 3,
     commitmentType: CommitmentType.PostFundSetup,
     appAttributes: defaultAppAttrs(obj.stake),
   };
 }
 
-interface ProposeParams extends BaseWithBuyInParams {
+interface ProposeParams extends BaseWithStake {
   aPlay: Play;
 }
 
 function propose(obj: ProposeParams): RPSCommitment {
   const salt = generateSalt();
   const preCommit = hashCommitment(obj.aPlay, salt);
-  const appAttributes: AppAttributes = {
+  const appAttributes: RPSAppAttributes = {
     ...defaultAppAttrs(obj.stake),
     aPlay: obj.aPlay,
     salt,
@@ -98,12 +124,13 @@ function propose(obj: ProposeParams): RPSCommitment {
   };
   return {
     ...base(obj),
+    turnNum: 4,
     commitmentType: CommitmentType.App,
     appAttributes,
   };
 }
 
-interface AcceptParams extends BaseWithBuyInParams {
+interface AcceptParams extends BaseWithStake {
   preCommit: string;
   bPlay: Play;
 }
@@ -118,12 +145,13 @@ function accept(obj: AcceptParams): RPSCommitment {
   };
   return {
     ...base(obj),
+    turnNum: 5,
     commitmentType: CommitmentType.App,
     appAttributes,
   };
 }
 
-interface RevealParams extends BaseWithBuyInParams {
+interface RevealParams extends BaseWithStake {
   bPlay: Play;
   aPlay: Play;
   salt: string;
@@ -141,18 +169,20 @@ function reveal(obj: RevealParams): RPSCommitment {
   };
   return {
     ...base(obj),
+    turnNum: 6,
     commitmentType: CommitmentType.App,
     appAttributes,
   };
 }
 
-function resting(obj: BaseWithBuyInParams): RPSCommitment {
+function resting(obj: BaseWithStake): RPSCommitment {
   const appAttributes = {
     ...defaultAppAttrs(obj.stake),
     positionType: PositionType.Resting,
   };
   return {
     ...base(obj),
+    turnNum: 7,
     commitmentType: CommitmentType.App,
     appAttributes,
   };
@@ -161,6 +191,7 @@ function resting(obj: BaseWithBuyInParams): RPSCommitment {
 function conclude(obj: BaseCommitment): RPSCommitment {
   return {
     ...base(obj),
+    turnNum: 8,
     commitmentType: CommitmentType.Conclude,
     appAttributes: defaultAppAttrs(zeroBytes32),
   };
@@ -176,4 +207,86 @@ export const constructors = {
   reveal,
   resting,
   conclude,
+};
+
+// ************************************
+// Params for opening/updating channels
+// ************************************
+
+export const base_rps_commitment: BaseWithStake = {
+  channel: {
+    nonce: expect.any(Number),
+    channelType: DUMMY_RULES_ADDRESS,
+    participants: PARTICIPANTS,
+  },
+  allocation: ALLOCATION,
+  destination: DESTINATION,
+  turnNum: 0,
+  commitmentCount: 0,
+  commitmentType: 0,
+  stake: toUint256(10),
+};
+
+const open_channel_commitment = asCoreCommitment(
+  preFundSetupA({ ...base_rps_commitment, channel: default_channel }),
+);
+export const open_channel_params = {
+  from: PARTICIPANT_ADDRESS,
+  commitment: open_channel_commitment,
+  signature: sign(toHex(open_channel_commitment), PARTICIPANT_PRIVATE_KEY),
+};
+
+export const invalid_open_channel_params = {
+  from: PARTICIPANT_ADDRESS,
+  commitment: open_channel_commitment,
+  signature: sign(toHex(open_channel_commitment), '0xf00'),
+};
+
+export function pre_fund_setup_1_response(
+  app_attrs: RPSAppAttributes,
+): Commitment {
+  return {
+    ...base(base_rps_commitment),
+    turnNum: 1,
+    appAttributes: encodeAppAttributes(app_attrs),
+    commitmentCount: 1,
+    commitmentType: CommitmentType.PreFundSetup,
+  };
+}
+
+export const funded_rps_channel: Channel = {
+  channelType: DUMMY_RULES_ADDRESS,
+  nonce: FUNDED_RPS_CHANNEL_NONCE,
+  participants: PARTICIPANTS,
+};
+
+export const beginning_app_phase_rps_channel: Channel = {
+  channelType: DUMMY_RULES_ADDRESS,
+  nonce: BEGINNING_RPS_APP_CHANNEL_NONCE,
+  participants: PARTICIPANTS,
+};
+
+const update_channel_commitment = postFundSetupA({
+  ...base_rps_commitment,
+  turnNum: 2,
+  channel: beginning_app_phase_rps_channel,
+});
+
+export function app_response(app_attrs: RPSAppAttributes): Commitment {
+  return {
+    ...base(base_rps_commitment),
+    turnNum: expect.any(Number),
+    appAttributes: sanitize(app_attrs),
+    commitmentCount: 0,
+    commitmentType: CommitmentType.App,
+  };
+}
+
+export const update_channel_params = {
+  from: PARTICIPANT_ADDRESS,
+  commitment: update_channel_commitment,
+  signature: sign(
+    toHex(asCoreCommitment(update_channel_commitment)),
+    PARTICIPANT_PRIVATE_KEY,
+  ),
 };

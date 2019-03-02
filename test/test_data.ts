@@ -5,15 +5,12 @@ import {
 } from 'fmg-nitro-adjudicator';
 import {
   ALLOCATION,
-  BEGINNING_APP_CHANNEL_HOLDINGS,
   BEGINNING_APP_CHANNEL_NONCE,
   DESTINATION,
   DUMMY_RULES_ADDRESS,
-  FUNDED_CHANNEL_HOLDINGS,
   FUNDED_CHANNEL_NONCE,
   HUB_ADDRESS,
   NONCE,
-  ONGOING_APP_CHANNEL_HOLDINGS,
   ONGOING_APP_CHANNEL_NONCE,
   PARTICIPANT_ADDRESS,
   PARTICIPANT_PRIVATE_KEY,
@@ -21,7 +18,7 @@ import {
 } from '../src/constants';
 import { LedgerCommitment } from '../src/types';
 
-const default_channel: Channel = {
+export const default_channel: Channel = {
   channelType: DUMMY_RULES_ADDRESS,
   participants: PARTICIPANTS,
   nonce: NONCE,
@@ -56,16 +53,6 @@ const app_attrs = (
 });
 
 const base = {
-  allocation: ALLOCATION,
-  destination: DESTINATION,
-};
-
-const base_response = {
-  channel: {
-    nonce: expect.any(Number),
-    channelType: DUMMY_RULES_ADDRESS,
-    participants: PARTICIPANTS,
-  },
   allocation: ALLOCATION,
   destination: DESTINATION,
 };
@@ -109,6 +96,16 @@ export const constructors = {
   app,
 };
 
+const base_response = {
+  channel: {
+    nonce: expect.any(Number),
+    channelType: DUMMY_RULES_ADDRESS,
+    participants: PARTICIPANTS,
+  },
+  allocation: ALLOCATION,
+  destination: DESTINATION,
+};
+
 export const pre_fund_setup_1_response: Commitment = {
   ...base_response,
   turnNum: 1,
@@ -148,45 +145,6 @@ export const invalid_open_channel_params = {
   signature: sign(toHex(commitment), '0xf00'),
 };
 
-export const created_channel = {
-  id: expect.any(Number),
-  holdings: '0x0a',
-  rules_address: DUMMY_RULES_ADDRESS,
-  participants: PARTICIPANTS.map(p => ({ address: p })),
-};
-
-export const created_channel_response = {
-  id: expect.any(Number),
-  holdings: 0,
-  channelType: DUMMY_RULES_ADDRESS,
-  participants: PARTICIPANTS,
-  nonce: NONCE,
-};
-
-export const funded_channel_response = {
-  id: expect.any(Number),
-  holdings: FUNDED_CHANNEL_HOLDINGS,
-  channelType: DUMMY_RULES_ADDRESS,
-  participants: PARTICIPANTS,
-  nonce: FUNDED_CHANNEL_NONCE,
-};
-
-export const beginning_app_phase_channel_response = {
-  id: expect.any(Number),
-  holdings: BEGINNING_APP_CHANNEL_HOLDINGS,
-  channelType: DUMMY_RULES_ADDRESS,
-  participants: PARTICIPANTS,
-  nonce: BEGINNING_APP_CHANNEL_NONCE,
-};
-
-export const ongoing_app_phase_channel_response = {
-  id: expect.any(Number),
-  holdings: ONGOING_APP_CHANNEL_HOLDINGS,
-  channelType: DUMMY_RULES_ADDRESS,
-  participants: PARTICIPANTS,
-  nonce: ONGOING_APP_CHANNEL_NONCE,
-};
-
 export const created_pre_fund_setup_1 = {
   id: expect.any(Number),
   allocator_channel_id: expect.any(Number),
@@ -198,7 +156,13 @@ export const created_pre_fund_setup_1 = {
   appAttributes: app_attrs(1),
 };
 
-export const sample_participants = [
-  { address: HUB_ADDRESS },
+export const participants = [
   { address: PARTICIPANT_ADDRESS },
+  { address: HUB_ADDRESS },
 ];
+
+export const created_channel = {
+  id: expect.any(Number),
+  participants,
+  rules_address: DUMMY_RULES_ADDRESS,
+};
