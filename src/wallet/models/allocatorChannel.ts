@@ -1,7 +1,7 @@
 import { Address, Channel, Uint256, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
 import AllocatorChannelParticipant from './allocator_channel_participant';
-import ConsensusCommitment from './allocatorChannelCommitment';
+import LedgerCommitment from './allocatorChannelCommitment';
 
 export default class AllocatorChannel extends Model {
   get asCoreChannel(): Channel {
@@ -25,7 +25,7 @@ export default class AllocatorChannel extends Model {
     },
     commitments: {
       relation: Model.HasManyRelation,
-      modelClass: ConsensusCommitment,
+      modelClass: LedgerCommitment,
       join: {
         from: 'allocator_channels.id',
         to: 'allocator_channel_commitments.allocator_channel_id',
@@ -36,6 +36,6 @@ export default class AllocatorChannel extends Model {
   holdings!: Uint256;
   nonce: Uint32;
   participants: AllocatorChannelParticipant[];
-  commitments: ConsensusCommitment[];
+  commitments: LedgerCommitment[];
   rules_address: Address;
 }

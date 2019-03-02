@@ -1,6 +1,6 @@
 import { Address, Uint256, Uint32 } from 'fmg-core';
 import { Model } from 'objection';
-import ConsensusCommitment from './allocatorChannelCommitment';
+import LedgerCommitment from './allocatorChannelCommitment';
 
 export default class Allocation extends Model {
   static tableName = 'allocations';
@@ -8,7 +8,7 @@ export default class Allocation extends Model {
   static relationMappings = {
     commitment: {
       relation: Model.BelongsToOneRelation,
-      modelClass: ConsensusCommitment,
+      modelClass: LedgerCommitment,
       join: {
         from: 'allocations.allocator_channel_commitment_id',
         to: 'allocator_channel_commitments.id',
@@ -16,7 +16,7 @@ export default class Allocation extends Model {
     },
   };
   readonly id!: number;
-  commitment: ConsensusCommitment;
+  commitment: LedgerCommitment;
   destination: Address;
   amount: Uint256;
   priority: Uint32;

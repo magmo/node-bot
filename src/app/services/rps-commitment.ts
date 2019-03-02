@@ -3,6 +3,7 @@ import {
   Bytes,
   Bytes32,
   Commitment,
+  CommitmentType,
   Uint256,
   Uint8,
 } from 'fmg-core';
@@ -44,6 +45,7 @@ export enum Play {
 
 export interface RPSCommitment extends BaseCommitment {
   appAttributes: RPSAppAttributes;
+  commitmentType: CommitmentType;
 }
 
 export function sanitize(appAttrs: RPSAppAttributes): Bytes {

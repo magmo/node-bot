@@ -6,8 +6,8 @@ import {
   Uint256,
   Uint32,
 } from 'fmg-core';
-import { LedgerCommitment } from '../../types';
 import { Blockchain } from './blockchain';
+import { LedgerCommitment } from './ledger-commitment';
 import * as LedgerChannelManager from './ledgerChannelManager';
 
 export interface IAllocatorChannel extends Channel {

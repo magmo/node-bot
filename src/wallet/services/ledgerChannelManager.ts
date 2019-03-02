@@ -1,15 +1,12 @@
-import { CommitmentType, recover, Signature, toHex } from 'fmg-core';
-import {
-  asCoreCommitment,
-  bytesFromAppAttributes,
-} from 'fmg-nitro-adjudicator';
+import { CommitmentType, Signature } from 'fmg-core';
+import { bytesFromAppAttributes } from 'fmg-nitro-adjudicator';
 import { ChannelResponse } from '.';
-import { LedgerCommitment } from '../../types';
 import { queries } from '../db/queries/allocator_channels';
 import errors from '../errors';
 import AllocatorChannel from '../models/allocatorChannel';
 import AllocatorChannelCommitment from '../models/allocatorChannelCommitment';
 import * as ChannelManagement from './channelManagement';
+import { asCoreCommitment, LedgerCommitment } from './ledger-commitment';
 
 // TODO: This should be extracted into a hub app?
 export async function updateLedgerChannel(

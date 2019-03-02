@@ -1,17 +1,14 @@
 import { Bytes, sign, Signature, toHex } from 'fmg-core';
-import {
-  asCoreCommitment,
-  bytesFromAppAttributes,
-} from 'fmg-nitro-adjudicator';
+import { bytesFromAppAttributes } from 'fmg-nitro-adjudicator';
 import {
   constructors as testDataConstructors,
   funded_channel,
 } from '../../../../test/test_data';
-import { HUB_ADDRESS, HUB_PRIVATE_KEY } from '../../../constants';
-import { LedgerCommitment } from '../../../types';
+import { HUB_PRIVATE_KEY } from '../../../constants';
 import { seeds } from '../../db/seeds/2_allocator_channels_seed';
 import AllocatorChannel from '../../models/allocatorChannel';
 import * as ChannelManagement from '../channelManagement';
+import { asCoreCommitment, LedgerCommitment } from '../ledger-commitment';
 
 process.env.NODE_ENV = 'test';
 

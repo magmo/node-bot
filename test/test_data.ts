@@ -1,8 +1,5 @@
 import { Channel, Commitment, CommitmentType, sign, toHex } from 'fmg-core';
-import {
-  asCoreCommitment,
-  bytesFromAppAttributes,
-} from 'fmg-nitro-adjudicator';
+import { bytesFromAppAttributes } from 'fmg-nitro-adjudicator';
 import {
   ALLOCATION,
   BEGINNING_APP_CHANNEL_NONCE,
@@ -16,7 +13,10 @@ import {
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
 } from '../src/constants';
-import { LedgerCommitment } from '../src/types';
+import {
+  asCoreCommitment,
+  LedgerCommitment,
+} from '../src/wallet/services/ledger-commitment';
 
 export const default_channel: Channel = {
   channelType: DUMMY_RULES_ADDRESS,

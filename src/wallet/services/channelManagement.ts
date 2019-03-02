@@ -1,6 +1,6 @@
 import { ChannelResponse } from '.';
 import { HUB_PRIVATE_KEY } from '../../constants';
-import ConsensusCommitment from '../models/allocatorChannelCommitment';
+import LedgerCommitment from '../models/allocatorChannelCommitment';
 
 import {
   Commitment,
@@ -23,7 +23,7 @@ export async function formResponse(
   channel_id: number,
   sanitize: AppAttrSanitizer,
 ): Promise<ChannelResponse> {
-  const commitment = await ConsensusCommitment.query()
+  const commitment = await LedgerCommitment.query()
     .eager('[allocator_channel.[participants],allocations]')
     .where({ allocator_channel_id: channel_id })
     .orderBy('turn_number', 'desc')

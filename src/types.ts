@@ -3,10 +3,10 @@ import {
   BaseCommitment,
   Bytes,
   Bytes32,
+  CommitmentType,
   Uint32,
   Uint8,
 } from 'fmg-core';
-import { AppAttributes } from '../../minimal_viable_force_move_games/packages/fmg-nitro-adjudicator/lib';
 
 export type CommitmentString = string;
 
@@ -24,11 +24,9 @@ export interface UpdateChannelParams {
 
 export type AppAttrExtractor = (attrs: Bytes) => any;
 export type AppAttrSanitizer = (attrs: any) => Bytes;
-export interface LedgerCommitment extends BaseCommitment {
-  appAttributes: AppAttributes;
-}
 export interface AppCommitment extends BaseCommitment {
   appAttributes: any;
+  commitmentType: CommitmentType;
 }
 
 export { Address, Bytes32, Bytes, Uint8, Uint32 };

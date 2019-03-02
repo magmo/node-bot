@@ -11,7 +11,6 @@ import {
 } from 'fmg-core';
 import {
   asCoreCommitment,
-  encodeAppAttributes,
   generateSalt,
   hashCommitment,
   Play,
@@ -26,7 +25,6 @@ import {
   DESTINATION,
   DUMMY_RULES_ADDRESS,
   FUNDED_RPS_CHANNEL_NONCE,
-  PARTICIPANT_ADDRESS,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
 } from '../src/constants';
@@ -37,9 +35,14 @@ import { default_channel } from './test_data';
 
 export interface BaseWithStake extends BaseCommitment {
   stake: Uint256;
+  commitmentType: CommitmentType;
 }
 
-function base(obj: BaseCommitment): BaseCommitment {
+interface BaseCommitmentWithType extends BaseCommitment {
+  commitmentType: CommitmentType;
+}
+
+function base(obj: BaseCommitmentWithType): BaseCommitmentWithType {
   const {
     channel,
     turnNum,
@@ -188,7 +191,7 @@ function resting(obj: BaseWithStake): RPSCommitment {
   };
 }
 
-function conclude(obj: BaseCommitment): RPSCommitment {
+function conclude(obj: BaseCommitmentWithType): RPSCommitment {
   return {
     ...base(obj),
     turnNum: 8,

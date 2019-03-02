@@ -1,5 +1,4 @@
 import { Bytes, sign, Signature, toHex } from 'fmg-core';
-import { asCoreCommitment } from 'fmg-nitro-adjudicator';
 import {
   app_1_response,
   beginning_app_phase_channel,
@@ -14,9 +13,9 @@ import {
   PARTICIPANTS,
   UNKNOWN_RULES_ADDRESS,
 } from '../../../constants';
-import { LedgerCommitment } from '../../../types';
 import errors from '../../errors';
 import * as ChannelManagement from '../channelManagement';
+import { asCoreCommitment, LedgerCommitment } from '../ledger-commitment';
 import * as LedgerChannelManager from '../ledgerChannelManager';
 
 process.env.NODE_ENV = 'test';

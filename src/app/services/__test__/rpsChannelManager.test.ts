@@ -1,6 +1,4 @@
 import {
-  Bytes,
-  Channel,
   Commitment,
   CommitmentType,
   sign,
@@ -10,7 +8,6 @@ import {
 } from 'fmg-core';
 import {
   app_response,
-  BaseWithStake,
   beginning_app_phase_rps_channel,
   constructors,
   funded_rps_channel,
@@ -30,8 +27,6 @@ import { errors } from '../../../wallet';
 import { validSignature } from '../../../wallet/services/channelManagement';
 import {
   asCoreCommitment,
-  decodeAppAttributes,
-  fromCoreCommitment,
   Play,
   PositionType,
   RPSCommitment,
@@ -41,7 +36,7 @@ import * as RPSChannelManager from '../rpsChannelManager';
 
 process.env.NODE_ENV = 'test';
 
-const base: BaseWithStake = {
+const base = {
   channel: default_channel,
   stake: toUint256(10),
   turnNum: 0,
