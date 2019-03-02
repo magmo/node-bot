@@ -7,7 +7,9 @@ import errors from '../../src/wallet/errors';
 import {
   invalid_open_channel_params,
   open_channel_params,
+  post_fund_setup_1_response,
   pre_fund_setup_1_response,
+  update_channel_params,
 } from '../../test/rps_test_data';
 
 const BASE_URL = '/api/v1/rps_channels';
@@ -30,7 +32,7 @@ describe('routes : rps_channels', () => {
 
     describe("when the channel doesn't exist", () => {
       describe('when the number of participants is not 2', () => {
-        it('returns 400', () => {
+        it.skip('returns 400', async () => {
           expect.assertions(1);
         });
       });
@@ -45,23 +47,30 @@ describe('routes : rps_channels', () => {
 
         const { commitment } = response.body;
 
-        const app_attrs = decodeAppAttributes(
-          open_channel_params.commitment.appAttributes,
-        );
-        expect(pre_fund_setup_1_response(app_attrs)).toMatchObject(commitment);
+        expect(pre_fund_setup_1_response).toMatchObject(commitment);
       });
     });
 
     describe('when the channel exists', () => {
       describe('when the commitment type is post-fund setup', () => {
-        it.skip('responds with a signed post-fund setup commitment when the channel is funded', async () => {
-          expect.assertions(1);
+        it('responds with a signed post-fund setup commitment when the channel', async () => {
+          // (It assumes the channel is funded)
+          const response = await supertest(app.callback())
+            .post(BASE_URL)
+            .send(update_channel_params);
+
+          expect(response.status).toEqual(201);
+          expect(response.type).toEqual('application/json');
+
+          const { commitment } = response.body;
+
+          expect(post_fund_setup_1_response).toMatchObject(commitment);
         });
       });
 
-      describe('when the commitment type is app', () => {});
+      describe.skip('when the commitment type is app', () => {});
 
-      describe('when the commitment type is conclude', () => {});
+      describe.skip('when the commitment type is conclude', () => {});
     });
   });
 });
