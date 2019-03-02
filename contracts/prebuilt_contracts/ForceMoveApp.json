@@ -102,7 +102,5 @@
   ],
   "bytecode": "0x",
   "contractName": "ForceMoveApp",
-  "networks": {
-    "3": null
-  }
+  "networks": {}
 }
