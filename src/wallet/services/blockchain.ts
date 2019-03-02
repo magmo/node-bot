@@ -1,4 +1,4 @@
-import { Address, Uint256 } from 'fmg-core';
+import { Address, toUint256, Uint256 } from 'fmg-core';
 
 import { nitroAdjudicator } from '../utilities/blockchain';
 
@@ -11,6 +11,12 @@ export class Blockchain {
     await tx.wait();
 
     return (await Blockchain.nitro.holdings(channelID)).toString();
+  }
+
+  static async holdings(channelID: Address): Promise<Uint256> {
+    await Blockchain.attachNitro();
+
+    return await Blockchain.nitro.holdings(channelID).toHexString();
   }
 
   private static async attachNitro() {
