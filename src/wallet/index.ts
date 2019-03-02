@@ -8,6 +8,7 @@ import {
 } from './services/channelManagement';
 
 import errors from './errors';
+import { getApplications } from './services/applicationManager';
 import { updateLedgerChannel } from './services/ledgerChannelManager';
 export { errors };
 
@@ -17,6 +18,7 @@ export default class Wallet {
   updateChannel = queries.updateAllocatorChannel;
   updateLedgerChannel = updateLedgerChannel;
   nextCommitment = nextCommitment;
+  getApplications = getApplications;
 
   constructor(sanitizeAppAttrs) {
     this.sanitize = sanitizeAppAttrs;
