@@ -231,28 +231,22 @@ const open_channel_commitment = asCoreCommitment(
   preFundSetupA({ ...base_rps_commitment, channel: default_channel }),
 );
 export const open_channel_params = {
-  from: PARTICIPANT_ADDRESS,
   commitment: open_channel_commitment,
   signature: sign(toHex(open_channel_commitment), PARTICIPANT_PRIVATE_KEY),
 };
 
 export const invalid_open_channel_params = {
-  from: PARTICIPANT_ADDRESS,
   commitment: open_channel_commitment,
   signature: sign(toHex(open_channel_commitment), '0xf00'),
 };
 
-export function pre_fund_setup_1_response(
-  app_attrs: RPSAppAttributes,
-): Commitment {
-  return {
-    ...base(base_rps_commitment),
-    turnNum: 1,
-    appAttributes: encodeAppAttributes(app_attrs),
-    commitmentCount: 1,
-    commitmentType: CommitmentType.PreFundSetup,
-  };
-}
+export const pre_fund_setup_1_response = {
+  ...base(base_rps_commitment),
+  turnNum: 1,
+  appAttributes: open_channel_commitment.appAttributes,
+  commitmentCount: 1,
+  commitmentType: CommitmentType.PreFundSetup,
+};
 
 export const funded_rps_channel: Channel = {
   channelType: DUMMY_RULES_ADDRESS,
@@ -260,17 +254,32 @@ export const funded_rps_channel: Channel = {
   participants: PARTICIPANTS,
 };
 
+const update_channel_commitment = asCoreCommitment(
+  postFundSetupA({
+    ...base_rps_commitment,
+    turnNum: 2,
+    channel: funded_rps_channel,
+  }),
+);
+
+export const update_channel_params = {
+  commitment: update_channel_commitment,
+  signature: sign(toHex(update_channel_commitment), PARTICIPANT_PRIVATE_KEY),
+};
+
+export const post_fund_setup_1_response = {
+  ...base(base_rps_commitment),
+  turnNum: 3,
+  appAttributes: update_channel_commitment.appAttributes,
+  commitmentCount: 1,
+  commitmentType: CommitmentType.PostFundSetup,
+};
+
 export const beginning_app_phase_rps_channel: Channel = {
   channelType: DUMMY_RULES_ADDRESS,
   nonce: BEGINNING_RPS_APP_CHANNEL_NONCE,
   participants: PARTICIPANTS,
 };
-
-const update_channel_commitment = postFundSetupA({
-  ...base_rps_commitment,
-  turnNum: 2,
-  channel: beginning_app_phase_rps_channel,
-});
 
 export function app_response(app_attrs: RPSAppAttributes): Commitment {
   return {
@@ -281,12 +290,3 @@ export function app_response(app_attrs: RPSAppAttributes): Commitment {
     commitmentType: CommitmentType.App,
   };
 }
-
-export const update_channel_params = {
-  from: PARTICIPANT_ADDRESS,
-  commitment: update_channel_commitment,
-  signature: sign(
-    toHex(asCoreCommitment(update_channel_commitment)),
-    PARTICIPANT_PRIVATE_KEY,
-  ),
-};
