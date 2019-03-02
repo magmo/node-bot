@@ -18,7 +18,7 @@ $ NODE_ENV=development yarn db:migrate
 $ NODE_ENV=development yarn db:seed
 $ yarn watch-server (will rebuild app on file change)
 
-// Opening a channel using the `open_channel_params` from `test_data.ts`:
+// Opening a channel using data from `test_data.ts` and `rps_test_data.ts`
 
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.ledger.json)" http://localhost:3000/api/v1/ledger_channels
 
