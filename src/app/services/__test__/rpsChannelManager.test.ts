@@ -13,6 +13,7 @@ import {
   FUNDED_CHANNEL_NONCE,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
+  STAKE,
   UNKNOWN_RULES_ADDRESS,
 } from '../../../constants';
 import {
@@ -27,9 +28,9 @@ import { errors } from '../../../wallet';
 import { validSignature } from '../../../wallet/services/channelManagement';
 import {
   asCoreCommitment,
-  Weapon,
   PositionType,
   RPSCommitment,
+  Weapon,
   zeroBytes32,
 } from '../rps-commitment';
 import * as RPSChannelManager from '../rpsChannelManager';
@@ -38,7 +39,7 @@ process.env.NODE_ENV = 'test';
 
 const base = {
   channel: default_channel,
-  stake: toUint256(10),
+  stake: STAKE,
   turnNum: 0,
   allocation: ALLOCATION,
   destination: DESTINATION,
