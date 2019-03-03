@@ -115,6 +115,7 @@ export function nextCommitment(
   theirCommitment: RPSCommitment,
   opts?: Opts,
 ): RPSCommitment {
+  // TODO: Update allocations (not needed as player B)
   if (theirCommitment.commitmentType !== CommitmentType.App) {
     return wallet.nextCommitment(theirCommitment);
   }
