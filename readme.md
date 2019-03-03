@@ -16,8 +16,9 @@ Copy `.env.example` to `.env`, and make it your own.
 
 ```
 $ npm i -g yarn
-$ yarn install // you will need to deal with fmg-core and fmg-nitro-adjudicator not being published
-$ NODE_ENV=development yarn db:create  // you will need to run `yarn db:drop` if the database already exists
+$ yarn install 
+// you will need to run `yarn db:drop` if the database already exists
+$ NODE_ENV=development yarn db:create
 $ NODE_ENV=development yarn db:migrate
 $ NODE_ENV=development yarn db:seed
 $ yarn watch-server (will rebuild app on file change)
@@ -29,6 +30,18 @@ $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" 
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
 $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/update_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
 ```
+
+### Playing against the server
+To play against the server from the client, the server's prebuilt contracts will need
+to know the addresses of the deployed contracts on the local ganache network.
+```
+yarn install
+
+// Make sure you've changed the file mode on bin/splice-networks.sh
+PATH_TO_WALLET_CONTRACTS=${PATH_TO_WALLET_PROJECT}/build/contracts yarn splice-networks
+```
+
+You will also need to make sure that the server's address has funds.
 
 ## Testing
 
