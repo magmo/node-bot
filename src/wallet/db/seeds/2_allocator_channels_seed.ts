@@ -1,7 +1,7 @@
 import { CommitmentType, toUint256 } from 'fmg-core';
 import { Model } from 'objection';
 import {
-  Play,
+  Weapon,
   PositionType,
   RPSAppAttributes,
   zeroBytes32,
@@ -110,8 +110,8 @@ function rps_app_attrs(n: number): RPSAppAttributes {
   return {
     stake: toUint256(10),
     positionType: PositionType.Resting,
-    aPlay: Play.Rock,
-    bPlay: Play.Rock,
+    aWeapon: Weapon.Rock,
+    bWeapon: Weapon.Rock,
     preCommit: zeroBytes32,
     salt: zeroBytes32,
   };
