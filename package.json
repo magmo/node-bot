@@ -19,6 +19,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@koa/cors": "2",
     "dotenv": "^6.2.0",
     "dotenv-expand": "^4.2.0",
     "fmg-core": "^0.5.6",
