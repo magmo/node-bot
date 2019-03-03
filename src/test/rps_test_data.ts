@@ -67,8 +67,8 @@ function defaultAppAttrs(stake): RPSAppAttributes {
     stake,
     positionType: 0,
     preCommit: zeroBytes32,
-    aPlay: Play.None,
-    bPlay: Play.None,
+    aPlay: Play.Rock,
+    bPlay: Play.Rock,
     salt: zeroBytes32,
   };
 }

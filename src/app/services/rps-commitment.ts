@@ -37,7 +37,6 @@ export enum PositionType {
 }
 
 export enum Play {
-  None,
   Rock,
   Paper,
   Scissors,
@@ -49,10 +48,9 @@ export interface RPSCommitment extends BaseCommitment {
 }
 
 export function sanitize(appAttrs: RPSAppAttributes): Bytes {
-  // TODO sanitize plays and salt
   const sanitizedAttrs = { ...appAttrs };
   if (appAttrs.positionType === PositionType.Proposed) {
-    sanitizedAttrs.aPlay = Play.None;
+    sanitizedAttrs.aPlay = Play.Rock;
     sanitizedAttrs.salt = zeroBytes32;
   }
 
@@ -103,8 +101,8 @@ export function defaultAppAttrs(stake): RPSAppAttributes {
     stake,
     positionType: 0,
     preCommit: zeroBytes32,
-    bPlay: Play.None,
-    aPlay: Play.None,
+    bPlay: Play.Rock,
+    aPlay: Play.Rock,
     salt: zeroBytes32,
   };
 }

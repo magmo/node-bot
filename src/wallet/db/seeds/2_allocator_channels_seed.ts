@@ -110,8 +110,8 @@ function rps_app_attrs(n: number): RPSAppAttributes {
   return {
     stake: toUint256(10),
     positionType: PositionType.Resting,
-    aPlay: Play.None,
-    bPlay: Play.None,
+    aPlay: Play.Rock,
+    bPlay: Play.Rock,
     preCommit: zeroBytes32,
     salt: zeroBytes32,
   };

@@ -137,7 +137,7 @@ function move(theirPosition: RPSAppAttributes, opts?: Opts): RPSAppAttributes {
         salt,
         preCommit: hashCommitment(opts.ourPlay, salt),
         aPlay: opts.ourPlay,
-        bPlay: Play.None,
+        bPlay: Play.Rock,
       };
     case PositionType.Proposed:
       return {

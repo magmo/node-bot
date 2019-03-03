@@ -55,7 +55,7 @@ function sanitize(c: RPSCommitment): RPSCommitment {
         ...c,
         appAttributes: {
           ...c.appAttributes,
-          aPlay: Play.None,
+          aPlay: Play.Rock,
           salt: zeroBytes32,
         },
       };
