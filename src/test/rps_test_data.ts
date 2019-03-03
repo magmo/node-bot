@@ -13,7 +13,7 @@ import {
   asCoreCommitment,
   generateSalt,
   hashCommitment,
-  Play,
+  Weapon,
   PositionType,
   RPSAppAttributes,
   RPSCommitment,
@@ -67,8 +67,8 @@ function defaultAppAttrs(stake): RPSAppAttributes {
     stake,
     positionType: 0,
     preCommit: zeroBytes32,
-    aPlay: Play.Rock,
-    bPlay: Play.Rock,
+    aWeapon: Weapon.Rock,
+    bWeapon: Weapon.Rock,
     salt: zeroBytes32,
   };
 }
@@ -112,15 +112,15 @@ function postFundSetupB(obj: BaseWithStake): RPSCommitment {
 }
 
 interface ProposeParams extends BaseWithStake {
-  aPlay: Play;
+  aWeapon: Weapon;
 }
 
 function propose(obj: ProposeParams): RPSCommitment {
   const salt = generateSalt();
-  const preCommit = hashCommitment(obj.aPlay, salt);
+  const preCommit = hashCommitment(obj.aWeapon, salt);
   const appAttributes: RPSAppAttributes = {
     ...defaultAppAttrs(obj.stake),
-    aPlay: obj.aPlay,
+    aWeapon: obj.aWeapon,
     salt,
     preCommit,
     positionType: PositionType.Proposed,
@@ -135,15 +135,15 @@ function propose(obj: ProposeParams): RPSCommitment {
 
 interface AcceptParams extends BaseWithStake {
   preCommit: string;
-  bPlay: Play;
+  bWeapon: Weapon;
 }
 
 function accept(obj: AcceptParams): RPSCommitment {
-  const { preCommit, bPlay } = obj;
+  const { preCommit, bWeapon } = obj;
   const appAttributes = {
     ...defaultAppAttrs(obj.stake),
     preCommit,
-    bPlay,
+    bWeapon,
     positionType: PositionType.Accepted,
   };
   return {
@@ -155,20 +155,20 @@ function accept(obj: AcceptParams): RPSCommitment {
 }
 
 interface RevealParams extends BaseWithStake {
-  bPlay: Play;
-  aPlay: Play;
+  bWeapon: Weapon;
+  aWeapon: Weapon;
   salt: string;
 }
 
 function reveal(obj: RevealParams): RPSCommitment {
-  const { aPlay, bPlay, salt } = obj;
+  const { aWeapon, bWeapon, salt } = obj;
   const appAttributes = {
     ...defaultAppAttrs(obj.stake),
-    aPlay,
-    bPlay,
+    aWeapon,
+    bWeapon,
     salt,
     positionType: PositionType.Reveal,
-    preCommit: hashCommitment(aPlay, salt),
+    preCommit: hashCommitment(aWeapon, salt),
   };
   return {
     ...base(obj),
