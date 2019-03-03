@@ -85,7 +85,7 @@ async function openChannel(theirCommitment: Commitment) {
     fromCoreCommitment(theirCommitment),
   );
 
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV !== 'test') {
     // TODO: Figure out how to test this.
     const funding =
       theirCommitment.allocation[
