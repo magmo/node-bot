@@ -13,11 +13,11 @@ import {
   fromCoreCommitment,
   generateSalt,
   hashCommitment,
-  Play,
   PositionType,
   RPSAppAttributes,
   RPSCommitment,
   sanitize,
+  Weapon,
 } from './rps-commitment';
 
 const wallet = new Wallet(sanitize);
@@ -56,13 +56,13 @@ export async function updateRPSChannel(
 
   const ourLastPosition = existingChannel.commitments[1].app_attrs;
   // TODO: How can we test the manager, while having a randomized play strategy?
-  const ourPlay = Play.Rock;
+  const ourWeapon = Weapon.Rock;
 
   const ourCommitment = await nextCommitment(
     fromCoreCommitment(theirCommitment),
     {
       ourLastPosition,
-      ourPlay,
+      ourWeapon,
     },
   );
 
@@ -102,13 +102,13 @@ async function openChannel(theirCommitment: Commitment) {
   return await wallet.formResponse(allocator_channel.id);
 }
 
-function randomPlay(): Play {
+function randomWeapon(): Weapon {
   return Math.floor(Math.random() * 4 + 1);
 }
 
 interface Opts {
   ourLastPosition?: RPSAppAttributes;
-  ourPlay?: Play;
+  ourWeapon?: Weapon;
 }
 
 export function nextCommitment(
@@ -135,21 +135,21 @@ function move(theirPosition: RPSAppAttributes, opts?: Opts): RPSAppAttributes {
         positionType: PositionType.Proposed,
         stake: theirPosition.stake,
         salt,
-        preCommit: hashCommitment(opts.ourPlay, salt),
-        aPlay: opts.ourPlay,
-        bPlay: Play.Rock,
+        preCommit: hashCommitment(opts.ourWeapon, salt),
+        aWeapon: opts.ourWeapon,
+        bWeapon: Weapon.Rock,
       };
     case PositionType.Proposed:
       return {
         ...theirPosition,
         positionType: PositionType.Accepted,
-        bPlay: opts.ourPlay,
+        bWeapon: opts.ourWeapon,
       };
     case PositionType.Accepted:
       return {
         ...theirPosition,
         positionType: PositionType.Reveal,
-        aPlay: opts.ourLastPosition.aPlay,
+        aWeapon: opts.ourLastPosition.aWeapon,
         salt: opts.ourLastPosition.salt,
       };
     case PositionType.Reveal:
