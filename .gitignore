@@ -15,3 +15,5 @@
 .env
 build
 lib
+# This is checked in as a typescript file
+knexfile.js
