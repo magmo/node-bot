@@ -1,9 +1,9 @@
 import { CommitmentType, toUint256 } from 'fmg-core';
 import { Model } from 'objection';
 import {
-  Weapon,
   PositionType,
   RPSAppAttributes,
+  Weapon,
   zeroBytes32,
 } from '../../../app/services/rps-commitment';
 import {
@@ -166,7 +166,9 @@ export const seeds = {
 };
 
 export function seed() {
-  return AllocatorChannel.query().insertGraph(Object.values(seeds));
+  return knex('allocator_channels').del().then(() => {
+    return AllocatorChannel.query().insertGraph(Object.values(seeds));
+  });
 }
 
 export const constructors = {
