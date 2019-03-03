@@ -4,6 +4,7 @@
   "description": "hub prototype",
   "main": "lib/index.js",
   "scripts": {
+    "splice-networks": "bin/splice-networks.sh",
     "db:drop": "dropdb server_wallet_${NODE_ENV}",
     "db:create": "createdb server_wallet_${NODE_ENV}",
     "db:migrate": "npx knex migrate:latest",
@@ -44,6 +45,7 @@
     "ganache-cli": "^6.3.0",
     "jest": "^24.0.6",
     "koa-bodyparser": "^4.2.1",
+    "node-jq": "^1.5.0",
     "nodemon": "^1.18.10",
     "supertest": "^3.4.2",
     "truffle": "^5.0.0-beta.2",
