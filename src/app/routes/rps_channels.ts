@@ -4,7 +4,6 @@ import * as Router from 'koa-router';
 import { ethers } from 'ethers';
 import { Signature } from 'fmg-core';
 import { errors } from '../../wallet';
-import { decodeAppAttributes } from '../services/rps-commitment';
 import { updateRPSChannel } from '../services/rpsChannelManager';
 export const BASE_URL = `/api/v1/rps_channels`;
 
@@ -13,11 +12,11 @@ const router = new Router();
 router.post(`${BASE_URL}`, koaBody(), async ctx => {
   try {
     let body;
-    console.log(ctx.request.body);
     const {
       commitment: theirCommitment,
       signature: theirSignature,
     } = ctx.request.body;
+
 
     const { commitment, signature } = await updateRPSChannel(
       theirCommitment,
