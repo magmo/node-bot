@@ -16,10 +16,14 @@ export function seed() {
           address: DUMMY_RULES_ADDRESS,
           name: "DUMMY GAME -- DON't PLAY",
         },
+        // {
+        //   address: RPS.networks['3'].address,
+        //   name: RPS.contractName,
+        // },
         {
-          address: RPS.networks['3'].address,
+          address: '0x6A4A62E5A7eD13c361b176A5F62C2eE620Ac0DF8',
           name: RPS.contractName,
-        },
+        }
       ]);
     });
 }
