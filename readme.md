@@ -33,11 +33,11 @@ $ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" 
 
 ### Playing against the server
 To play against the server from the client, the server's prebuilt contracts will need
-to know the addresses of the deployed contracts on the local ganache network.
-```
-yarn install
+to know the addresses of the deployed contracts on the local ganache network shared between this app and the client app.
 
-// Make sure you've changed the file mode on bin/splice-networks.sh
+In addition to the above development setup, after deploying wallet contracts to your local ganache server, add the wallet artifact's network data to this project's prebuilt contracts:
+```
+chmod +x scripts/splice-networks.sh
 PATH_TO_WALLET_CONTRACTS=${PATH_TO_WALLET_PROJECT}/build/contracts yarn splice-networks
 ```
 
