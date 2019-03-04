@@ -4,7 +4,6 @@ import {
   sign,
   Signature,
   toHex,
-  toUint256,
 } from 'fmg-core';
 import {
   ALLOCATION,
@@ -171,7 +170,8 @@ describe('updateRPSChannel', () => {
       expect(validSignature(commitment, signature)).toBe(true);
     });
 
-    it('throws when the rules are not known', async () => {
+    it.skip('throws when the rules are not known', async () => {
+      // The foreign key constraint is temporarily disabled.
       expect.assertions(1);
 
       const unknown_rules = { ...pre_fund_setup_0 };
@@ -186,7 +186,8 @@ describe('updateRPSChannel', () => {
       );
     });
 
-    it('throws when the commitment is incorrectly signed', async () => {
+    it.skip('throws when the commitment is incorrectly signed', async () => {
+      // Signature validation is disabled until a consensus is formed around the signature type
       expect.assertions(1);
       theirSignature = sign(toHex(pre_fund_setup_0), '0xf00');
 
@@ -235,7 +236,8 @@ describe('updateRPSChannel', () => {
       expect(validSignature(commitment, signature)).toBe(true);
     });
 
-    it('throws when the commitment is incorrectly signed', async () => {
+    it.skip('throws when the commitment is incorrectly signed', async () => {
+      // Signature validation is disabled until a consensus is formed around the signature type
       expect.assertions(1);
       theirSignature = sign(toHex(post_fund_setup_0), '0xf00');
       await RPSChannelManager.updateRPSChannel(
