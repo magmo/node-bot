@@ -1,3 +1,0 @@
-Commitment.json
-NitroAdjudicator.json
-Rules.json
