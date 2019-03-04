@@ -3,6 +3,7 @@ import { ChannelResponse, errors } from '../../wallet';
 import Wallet from '../../wallet';
 import AllocatorChannel from '../../wallet/models/allocatorChannel';
 
+import { delay } from 'bluebird';
 import { ethers } from 'ethers';
 import { channelID } from 'fmg-core/lib/channel';
 import { HUB_ADDRESS } from '../../constants';
@@ -44,6 +45,9 @@ export async function updateRPSChannel(
   if (theirCommitment.commitmentType === CommitmentType.PreFundSetup) {
     return await openChannel(theirCommitment);
   }
+
+  // Add delay to make it more suspenseful
+  await delay(1000);
 
   const { channelType: rules_address, nonce } = theirCommitment.channel;
   const existingChannel = await AllocatorChannel.query()
