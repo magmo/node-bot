@@ -37,7 +37,7 @@ to know the addresses of the deployed contracts on the local ganache network sha
 
 In addition to the above development setup, after deploying wallet contracts to your local ganache server, add the wallet artifact's network data to this project's prebuilt contracts:
 ```
-chmod +x scripts/splice-networks.sh
+chmod +x bin/splice-networks.sh
 PATH_TO_WALLET_CONTRACTS=${PATH_TO_WALLET_PROJECT}/build/contracts yarn splice-networks
 ```
 
