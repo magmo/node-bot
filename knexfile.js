@@ -6,7 +6,7 @@ let dotenvExpand = require('dotenv-expand');
 dotenvExpand(env);
 
 let sourceDirectory = 'src';
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'staging' || process.env.NODE_ENV === 'production') {
   sourceDirectory = 'lib';
 }
 const BASE_PATH = path.join(__dirname, sourceDirectory, 'wallet', 'db');
