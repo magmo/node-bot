@@ -1,3 +1,4 @@
+import { ethers } from 'ethers';
 import { Address, Uint256 } from 'fmg-core';
 
 export const NAME = 'Neo Bot';
@@ -46,7 +47,7 @@ export const SEEDED_PARTICIPANTS = SEEDED_CHANNELS * 2;
 export const NONCE = 1000;
 export const RPS_NONCE = 22222;
 
-export const STAKE: Uint256 = '0x01';
+export const STAKE: Uint256 = ethers.utils.parseEther('0.01').toHexString();
 export const ALLOCATION: Uint256[] = ['0x05', '0x05'];
 export const DESTINATION: Address[] = [PARTICIPANT_ADDRESS, HUB_ADDRESS];
 export const PARTICIPANTS: Address[] = [PARTICIPANT_ADDRESS, HUB_ADDRESS];

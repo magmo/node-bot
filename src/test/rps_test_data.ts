@@ -13,11 +13,11 @@ import {
   asCoreCommitment,
   generateSalt,
   hashCommitment,
-  Weapon,
   PositionType,
   RPSAppAttributes,
   RPSCommitment,
   sanitize,
+  Weapon,
 } from '../app/services/rps-commitment';
 import {
   ALLOCATION,
@@ -27,6 +27,7 @@ import {
   FUNDED_RPS_CHANNEL_NONCE,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
+  STAKE,
 } from '../constants';
 import { default_channel } from './test_data';
 
@@ -227,7 +228,7 @@ export const base_rps_commitment: BaseWithStake = {
   turnNum: 0,
   commitmentCount: 0,
   commitmentType: 0,
-  stake: toUint256(10),
+  stake: STAKE,
 };
 
 const open_channel_commitment = asCoreCommitment(
