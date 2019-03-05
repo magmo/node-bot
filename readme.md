@@ -16,7 +16,7 @@ Copy `.env.example` to `.env`, and make it your own.
 
 ```
 $ npm i -g yarn
-$ yarn install 
+$ yarn install
 // you will need to run `yarn db:drop` if the database already exists
 $ NODE_ENV=development yarn db:create
 $ NODE_ENV=development yarn db:migrate
@@ -25,17 +25,19 @@ $ yarn watch-server (will rebuild app on file change)
 
 // Opening a channel using data from `test_data.ts` and `rps_test_data.ts`
 
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.ledger.json)" http://localhost:3000/api/v1/ledger_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.ledger.json)" http://localhost:3002/api/v1/ledger_channels
 
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
-$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/update_channel.rps.json)" http://localhost:3000/api/v1/rps_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/open_channel.rps.json)" http://localhost:3002/api/v1/rps_channels
+$ curl -X POST -H "Content-Type: application/json" -H "Accept:application/json" -d "$(cat samples/update_channel.rps.json)" http://localhost:3002/api/v1/rps_channels
 ```
 
 ### Playing against the server
+
 To play against the server from the client, the server's prebuilt contracts will need
 to know the addresses of the deployed contracts on the local ganache network shared between this app and the client app.
 
 In addition to the above development setup, after deploying wallet contracts to your local ganache server, add the wallet artifact's network data to this project's prebuilt contracts:
+
 ```
 chmod +x bin/splice-networks.sh
 PATH_TO_WALLET_CONTRACTS=${PATH_TO_WALLET_PROJECT}/build/contracts yarn splice-networks
