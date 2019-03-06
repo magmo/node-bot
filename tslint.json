@@ -22,13 +22,23 @@
     "ordered-imports": true,
     "jsx-no-lambda": false,
     "interface-name": false,
-    "trailing-comma": [true, {
-      "multiline": {
-        "objects": "always"
+    "trailing-comma": [
+      true,
+      {
+        "multiline": {
+          "objects": "always"
+        }
       }
-    }],
+    ],
     "max-classes-per-file": false,
-    "variable-name": [true, "ban-keywords", "check-format", "allow-pascal-case", "allow-snake-case", "allow-leading-underscore"],
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-pascal-case",
+      "allow-snake-case",
+      "allow-leading-underscore"
+    ],
     "semicolon": [true, "always"],
     "no-switch-case-fall-through": true
   }
