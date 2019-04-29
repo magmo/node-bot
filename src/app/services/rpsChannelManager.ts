@@ -46,8 +46,10 @@ export async function updateRPSChannel(
     return await openChannel(theirCommitment);
   }
 
-  // Add delay to make it more suspenseful
-  await delay(1000);
+  if (process.env.NODE_ENV === 'development') {
+    // Add delay to make it more suspenseful
+    await delay(1000);
+  }
 
   const { channelType: rules_address, nonce } = theirCommitment.channel;
   const existingChannel = await AllocatorChannel.query()
