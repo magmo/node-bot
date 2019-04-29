@@ -6,7 +6,10 @@ let dotenvExpand = require('dotenv-expand');
 dotenvExpand(env);
 
 let sourceDirectory = 'src';
-if (process.env.NODE_ENV === 'production') {
+if (
+  process.env.NODE_ENV === 'staging' ||
+  process.env.NODE_ENV === 'production'
+) {
   sourceDirectory = 'lib';
 }
 const BASE_PATH = path.join(__dirname, sourceDirectory, 'wallet', 'db');
@@ -35,6 +38,19 @@ module.exports = {
     migrations: {
       directory: path.join(BASE_PATH, 'migrations'),
       extensions: ['ts'],
+    },
+    seeds: {
+      directory: path.join(BASE_PATH, 'seeds'),
+    },
+    debug: process.env.DEBUG_KNEX === 'TRUE',
+  },
+
+  staging: {
+    client: 'pg',
+    connection: CONN_STRING,
+    migrations: {
+      directory: path.join(BASE_PATH, 'migrations'),
+      extensions: ['js'],
     },
     seeds: {
       directory: path.join(BASE_PATH, 'seeds'),
