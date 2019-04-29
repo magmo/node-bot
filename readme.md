@@ -43,7 +43,7 @@ chmod +x bin/splice-networks.sh
 PATH_TO_WALLET_CONTRACTS=${PATH_TO_WALLET_PROJECT}/build/contracts yarn splice-networks
 ```
 
-You will also need to make sure that the server's address has funds.
+You will also need to make sure that the server's address has funds. You can find the server address in [constants.ts](https://github.com/magmo/node-bot/blob/master/src/constants.ts)
 
 ## Testing
 
