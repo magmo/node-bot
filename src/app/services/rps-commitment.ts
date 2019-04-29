@@ -14,8 +14,8 @@ export interface RPSAppAttributes {
   positionType: Uint8;
   stake: Uint256;
   preCommit: Bytes32;
-  bPlay: Uint8;
-  aPlay: Uint8;
+  bWeapon: Uint8;
+  aWeapon: Uint8;
   salt: Bytes32;
 }
 
@@ -24,8 +24,8 @@ const SolidityRPSCommitmentType = {
     positionType: 'uint8',
     stake: 'uint256',
     preCommit: 'bytes32',
-    bPlay: 'uint8',
-    aPlay: 'uint8',
+    bWeapon: 'uint8',
+    aWeapon: 'uint8',
     salt: 'bytes32',
   },
 };
@@ -36,8 +36,7 @@ export enum PositionType {
   Reveal,
 }
 
-export enum Play {
-  None,
+export enum Weapon {
   Rock,
   Paper,
   Scissors,
@@ -49,10 +48,9 @@ export interface RPSCommitment extends BaseCommitment {
 }
 
 export function sanitize(appAttrs: RPSAppAttributes): Bytes {
-  // TODO sanitize plays and salt
   const sanitizedAttrs = { ...appAttrs };
   if (appAttrs.positionType === PositionType.Proposed) {
-    sanitizedAttrs.aPlay = Play.None;
+    sanitizedAttrs.aWeapon = Weapon.Rock;
     sanitizedAttrs.salt = zeroBytes32;
   }
 
@@ -60,13 +58,13 @@ export function sanitize(appAttrs: RPSAppAttributes): Bytes {
 }
 
 export function encodeAppAttributes(appAttrs: RPSAppAttributes): Bytes {
-  const { positionType, stake, preCommit, bPlay, aPlay, salt } = appAttrs;
+  const { positionType, stake, preCommit, bWeapon, aWeapon, salt } = appAttrs;
   return abi.encodeParameter(SolidityRPSCommitmentType, [
     positionType,
     stake,
     preCommit,
-    bPlay,
-    aPlay,
+    bWeapon,
+    aWeapon,
     salt,
   ]);
 }
@@ -77,8 +75,8 @@ export function decodeAppAttributes(appAttrs: string): RPSAppAttributes {
     positionType: parseInt(parameters[0], 10),
     stake: parameters[1],
     preCommit: parameters[2],
-    bPlay: parseInt(parameters[3], 10),
-    aPlay: parseInt(parameters[4], 10),
+    bWeapon: parseInt(parameters[3], 10),
+    aWeapon: parseInt(parameters[4], 10),
     salt: parameters[5],
   };
 }
@@ -103,8 +101,8 @@ export function defaultAppAttrs(stake): RPSAppAttributes {
     stake,
     positionType: 0,
     preCommit: zeroBytes32,
-    bPlay: Play.None,
-    aPlay: Play.None,
+    bWeapon: Weapon.Rock,
+    aWeapon: Weapon.Rock,
     salt: zeroBytes32,
   };
 }
@@ -114,9 +112,9 @@ export function generateSalt(): Bytes32 {
   return '0x' + '12'.repeat(32);
 }
 
-export function hashCommitment(play: Play, salt: string) {
+export function hashCommitment(weapon: Weapon, salt: string) {
   return soliditySha3(
-    { type: 'uint256', value: play },
+    { type: 'uint256', value: weapon },
     { type: 'bytes32', value: salt },
   );
 }

@@ -4,7 +4,7 @@ import * as Router from 'koa-router';
 import Wallet from '../../wallet';
 export const BASE_URL = `/api/v1/rps_games`;
 import { Address, Uint256 } from 'fmg-core';
-import { HUB_ADDRESS } from '../../constants';
+import { HUB_ADDRESS, NAME, STAKE } from '../../constants';
 import * as artifact from '../../contracts/prebuilt_contracts/RockPaperScissorsGame.json';
 
 const router = new Router();
@@ -12,6 +12,7 @@ const router = new Router();
 interface Game {
   rules_address: Address;
   stake: Uint256;
+  name: string;
 }
 
 router.get(`${BASE_URL}`, koaBody(), async ctx => {
@@ -24,11 +25,8 @@ router.get(`${BASE_URL}`, koaBody(), async ctx => {
     const games: Game[] = [
       {
         rules_address: address,
-        stake: '0x05',
-      },
-      {
-        rules_address: address,
-        stake: '0x0fff',
+        stake: STAKE,
+        name: NAME,
       },
     ];
     let body;

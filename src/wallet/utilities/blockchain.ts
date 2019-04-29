@@ -4,10 +4,10 @@ import * as RulesArtifact from '../../contracts/prebuilt_contracts/Rules.json';
 
 import { ContractFactory, ethers, providers } from 'ethers';
 import { linkedByteCode } from 'magmo-devtools';
-import { HUB_PRIVATE_KEY } from '../../constants';
+import { HUB_SIGNER_PRIVATE_KEY } from '../../constants';
 
 const provider = new providers.JsonRpcProvider(process.env.JSON_RPS_ENDPOINT);
-const walletWithProvider = new ethers.Wallet(HUB_PRIVATE_KEY, provider);
+const walletWithProvider = new ethers.Wallet(HUB_SIGNER_PRIVATE_KEY, provider);
 
 export async function nitroAdjudicator() {
   return setupContract(nitroAdjudicatorArtifact);

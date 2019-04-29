@@ -7,12 +7,7 @@ exports.up = (knex: Knex) => {
   return knex.schema
     .createTable(TABLE_NAME, table => {
       table.increments();
-      table.string('rules_address').notNullable();
-      // TODO: remove CASCADE
-      table
-        .foreign('rules_address')
-        .references('rules.address')
-        .onDelete('CASCADE');
+      table.string('rules_address').notNullable(); // TODO: This should reference the rules table
       table
         .integer('nonce')
         .unsigned()

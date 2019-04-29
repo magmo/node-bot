@@ -1,9 +1,9 @@
 import { CommitmentType, toUint256 } from 'fmg-core';
 import { Model } from 'objection';
 import {
-  Play,
   PositionType,
   RPSAppAttributes,
+  Weapon,
   zeroBytes32,
 } from '../../../app/services/rps-commitment';
 import {
@@ -110,8 +110,8 @@ function rps_app_attrs(n: number): RPSAppAttributes {
   return {
     stake: toUint256(10),
     positionType: PositionType.Resting,
-    aPlay: Play.None,
-    bPlay: Play.None,
+    aWeapon: Weapon.Rock,
+    bWeapon: Weapon.Rock,
     preCommit: zeroBytes32,
     salt: zeroBytes32,
   };
@@ -166,7 +166,11 @@ export const seeds = {
 };
 
 export function seed() {
-  return AllocatorChannel.query().insertGraph(Object.values(seeds));
+  return knex('allocator_channels')
+    .del()
+    .then(() => {
+      return AllocatorChannel.query().insertGraph(Object.values(seeds));
+    });
 }
 
 export const constructors = {

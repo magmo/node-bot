@@ -1,11 +1,4 @@
-import {
-  Commitment,
-  CommitmentType,
-  sign,
-  Signature,
-  toHex,
-  toUint256,
-} from 'fmg-core';
+import { Commitment, CommitmentType, sign, Signature, toHex } from 'fmg-core';
 import {
   ALLOCATION,
   DESTINATION,
@@ -13,6 +6,7 @@ import {
   FUNDED_CHANNEL_NONCE,
   PARTICIPANT_PRIVATE_KEY,
   PARTICIPANTS,
+  STAKE,
   UNKNOWN_RULES_ADDRESS,
 } from '../../../constants';
 import {
@@ -27,9 +21,9 @@ import { errors } from '../../../wallet';
 import { validSignature } from '../../../wallet/services/channelManagement';
 import {
   asCoreCommitment,
-  Play,
   PositionType,
   RPSCommitment,
+  Weapon,
   zeroBytes32,
 } from '../rps-commitment';
 import * as RPSChannelManager from '../rpsChannelManager';
@@ -38,15 +32,15 @@ process.env.NODE_ENV = 'test';
 
 const base = {
   channel: default_channel,
-  stake: toUint256(10),
+  stake: STAKE,
   turnNum: 0,
   allocation: ALLOCATION,
   destination: DESTINATION,
   commitmentCount: 0,
   commitmentType: CommitmentType.PreFundSetup,
 };
-const APLAY = Play.Paper;
-const BPLAY = Play.Rock;
+const APLAY = Weapon.Paper;
+const BPLAY = Weapon.Rock;
 
 function sanitize(c: RPSCommitment): RPSCommitment {
   switch (c.appAttributes.positionType) {
@@ -55,7 +49,7 @@ function sanitize(c: RPSCommitment): RPSCommitment {
         ...c,
         appAttributes: {
           ...c.appAttributes,
-          aPlay: Play.None,
+          aWeapon: Weapon.Rock,
           salt: zeroBytes32,
         },
       };
@@ -88,22 +82,22 @@ beforeEach(() => {
 
   propose = constructors.propose({
     ...base,
-    aPlay: APLAY,
+    aWeapon: APLAY,
     channel: beginning_app_phase_rps_channel,
   });
   const { stake } = propose.appAttributes;
   accept = constructors.accept({
     ...base,
     turnNum: propose.turnNum + 1,
-    bPlay: BPLAY,
+    bWeapon: BPLAY,
     preCommit: propose.appAttributes.preCommit,
   });
   reveal = constructors.reveal({
     ...accept,
     turnNum: accept.turnNum + 1,
-    aPlay: APLAY,
+    aWeapon: APLAY,
     salt: propose.appAttributes.salt,
-    bPlay: BPLAY,
+    bWeapon: BPLAY,
     stake,
     channel: beginning_app_phase_rps_channel,
   });
@@ -120,7 +114,7 @@ describe('nextCommitment', () => {
     expect(
       // Our opponent would have sanitized their propose
       await RPSChannelManager.nextCommitment(sanitize(propose), {
-        ourPlay: BPLAY,
+        ourWeapon: BPLAY,
       }),
     ).toMatchObject(withAgnosticChannel(accept));
   });
@@ -142,7 +136,7 @@ describe('nextCommitment', () => {
 
   it('works on resting commitments', async () => {
     expect(
-      await RPSChannelManager.nextCommitment(resting, { ourPlay: APLAY }),
+      await RPSChannelManager.nextCommitment(resting, { ourWeapon: APLAY }),
     ).toMatchObject({
       ...withAgnosticChannel(propose),
       turnNum: resting.turnNum + 1,
@@ -170,7 +164,8 @@ describe('updateRPSChannel', () => {
       expect(validSignature(commitment, signature)).toBe(true);
     });
 
-    it('throws when the rules are not known', async () => {
+    it.skip('throws when the rules are not known', async () => {
+      // The foreign key constraint is temporarily disabled.
       expect.assertions(1);
 
       const unknown_rules = { ...pre_fund_setup_0 };
@@ -185,7 +180,8 @@ describe('updateRPSChannel', () => {
       );
     });
 
-    it('throws when the commitment is incorrectly signed', async () => {
+    it.skip('throws when the commitment is incorrectly signed', async () => {
+      // Signature validation is disabled until a consensus is formed around the signature type
       expect.assertions(1);
       theirSignature = sign(toHex(pre_fund_setup_0), '0xf00');
 
@@ -234,7 +230,8 @@ describe('updateRPSChannel', () => {
       expect(validSignature(commitment, signature)).toBe(true);
     });
 
-    it('throws when the commitment is incorrectly signed', async () => {
+    it.skip('throws when the commitment is incorrectly signed', async () => {
+      // Signature validation is disabled until a consensus is formed around the signature type
       expect.assertions(1);
       theirSignature = sign(toHex(post_fund_setup_0), '0xf00');
       await RPSChannelManager.updateRPSChannel(

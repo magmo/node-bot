@@ -72,7 +72,7 @@
       "outputs": [
         {
           "name": "_aWeapon",
-          "type": "RockPaperScissorsCommitment.Play"
+          "type": "RockPaperScissorsCommitment.Weapon"
         }
       ],
       "payable": false,
@@ -92,7 +92,7 @@
       "outputs": [
         {
           "name": "_bWeapon",
-          "type": "RockPaperScissorsCommitment.Play"
+          "type": "RockPaperScissorsCommitment.Weapon"
         }
       ],
       "payable": false,

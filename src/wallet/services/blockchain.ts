@@ -1,4 +1,4 @@
-import { Address, toUint256, Uint256 } from 'fmg-core';
+import { Address, Uint256 } from 'fmg-core';
 
 import { nitroAdjudicator } from '../utilities/blockchain';
 
