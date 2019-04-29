@@ -166,9 +166,11 @@ export const seeds = {
 };
 
 export function seed() {
-  return knex('allocator_channels').del().then(() => {
-    return AllocatorChannel.query().insertGraph(Object.values(seeds));
-  });
+  return knex('allocator_channels')
+    .del()
+    .then(() => {
+      return AllocatorChannel.query().insertGraph(Object.values(seeds));
+    });
 }
 
 export const constructors = {

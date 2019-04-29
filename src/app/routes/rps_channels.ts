@@ -17,10 +17,9 @@ router.post(`${BASE_URL}`, koaBody(), async ctx => {
       signature: theirSignature,
     } = ctx.request.body;
 
-
     const { commitment, signature } = await updateRPSChannel(
       theirCommitment,
-      ethers.utils.splitSignature(theirSignature) as unknown as Signature,
+      (ethers.utils.splitSignature(theirSignature) as unknown) as Signature,
     );
     body = { status: 'success', commitment, signature };
 

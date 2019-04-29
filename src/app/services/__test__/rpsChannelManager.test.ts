@@ -1,10 +1,4 @@
-import {
-  Commitment,
-  CommitmentType,
-  sign,
-  Signature,
-  toHex,
-} from 'fmg-core';
+import { Commitment, CommitmentType, sign, Signature, toHex } from 'fmg-core';
 import {
   ALLOCATION,
   DESTINATION,
